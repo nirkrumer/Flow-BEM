@@ -20,8 +20,9 @@
             }
         });
 
-/* *********************** LISTENERS **************************************/
- /*(manywho as any).eventManager.addBeforeSendListener(this.moveHappening, this.componentId);
+/* *********************** LISTENERS **************************************
+ (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
+ (manywho as any).eventManager.addBeforeSendListener(this.moveHappening, this.componentId);
 
 moveHappening(xhr: XMLHttpRequest, request: any) {
         if ((xhr as any).invokeType === 'FORWARD') {
@@ -31,9 +32,12 @@ moveHappening(xhr: XMLHttpRequest, request: any) {
             console.log(oc.developerName);            
         }
     }
-    */
 
-
+moveHappened(xhr: XMLHttpRequest, request: any) {
+    if ((xhr as any).invokeType === 'FORWARD') {
+        // this.forceUpdate();
+    }
+}
 /* ************************** Session Stroage ******************************** 
 
 GET

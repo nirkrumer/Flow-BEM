@@ -2,59 +2,71 @@ import * as React from 'react';
 import { FlowPage } from './models/FlowPage';
 import { IManywho } from './models/interfaces';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
-import { FlowObjectData, IFlowObjectData } from './models/FlowObjectData';
+import { FlowObjectData} from './models/FlowObjectData';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import './ExecRecordsGrid.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider, { CSVExport, Search } from 'react-bootstrap-table2-toolkit';
-import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import overlayFactory from 'react-bootstrap-table2-overlay';
+import filterFactory from 'react-bootstrap-table2-filter';
 import { eLoadingState } from './models/FlowBaseComponent';
+import Switch from "react-switch";
 
 declare const manywho: IManywho;
 
 export class ExecRecordsGrid extends FlowPage {
+    autorun : String ;
+    timerId : any ;
 
     constructor(props: any) {
         super(props);
+        this.handleSwitchChange = this.handleSwitchChange.bind(this)
+        this.refrshTable = this.refrshTable.bind(this)
+        this.state = {
+            Toggleoption : false,
+            input : ''   
+        }
     }
     async componentDidMount() {
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
-        //    (manywho as any).eventManager.addBeforeSendListener(this.moveHappening, this.componentId);
         this.forceUpdate();
         return Promise.resolve();
     }
 
-    moveHappened(xhr: XMLHttpRequest, request: any) {
-        if ((xhr as any).invokeType === 'FORWARD') {
-            // this.forceUpdate();
-        }
-    }
+    moveHappened(xhr: XMLHttpRequest, request: any) {}
 
     async componentWillUnmount(): Promise<void> {
         (manywho as any).eventManager.removeDoneListener(this.componentId);
-        //    (manywho as any).eventManager.removeBeforeSendListener(this.componentId);
+        window.clearInterval(this.timerId);
     }
 
-     workEveryOneMin = () => {
-         setTimeout(()=> {
-            this.forceUpdate() 
-            console.log('test')}, 20000) 
-            this.triggerOutcome('refresh');
-     }
- 
+/* **************************************************************************** */
+
+    handleSwitchChange(Toggleoption : boolean){
+        this.setState({ Toggleoption });
+        this.autorun = Toggleoption ? 'On' : 'Off';
+        if (Toggleoption){
+            const triggeroutcome_this = this;
+            this.timerId = window.setInterval(function(){
+                triggeroutcome_this.triggerOutcome('refresh');
+                } , 10000)
+            }    
+        else {
+            window.clearInterval(this.timerId);
+        }
+    }
+    refrshTable(){
+        this.triggerOutcome('refresh');
+    }
+        
     render() {
-      //  this.workEveryOneMin()
         const products: any = [];
         let product_element: any = {};
         if (this.loadingState !== eLoadingState.ready) {
             return (<div></div>);
         }
         else {
-
             const api_request: FlowObjectDataArray = this.fields["BEM:List:Exec_API_Request"].value as FlowObjectDataArray;
-
             api_request.items.forEach((item: FlowObjectData) => {
                 product_element = {}
                 Object.keys(item.properties).forEach((key: string) => {
@@ -213,61 +225,81 @@ export class ExecRecordsGrid extends FlowPage {
                </div>
              );
            };*/
+       let inputs:any;
         const MySearch = (props: any) => {
-            let input: any;
+        
             const handleClick = () => {
-                props.onSearch(input.value);
+                props.onSearch(inputs.value);  
+                // this.setState (
+                //     {input : inputs}            
+                // )
             };
             return (
                 <div>
                     <input id='SearchBar'
                         className="form-control"
-                        //style={ { size="" } }
+                        style ={{width:"400px"}}
                         placeholder="Search..."
                         type="text"
-                        ref={n => input = n}
+                        ref={n => inputs = n}
                         onChange={handleClick}
                     />
                 </div>
             );
         };
+        
         const Clearbutton = (props: any) => {
+            
             const clearhandleClick = () => {
-                props.onclick = "document.getElementById('SearchBar').value = ''"
+                inputs.value = ''
+                // this.setState (
+                //     {input : ''}            
+                // )
             }
             return (
-                <button className="btn"
+                <button className="btn btn-default"
                     onClick={clearhandleClick}>Clear</button>
             )
         }
         /* ********************************************************************************** */
         return (
-
-            <ToolkitProvider keyField="id"
-                data={products}
-                columns={columns}
-                search
-                exportCSV
-            >
+         <div className = "container">
+            <div className = "row" style ={{float:"right" }}>
+                <button className = "btn btn-primary" type="button" onClick={this.refrshTable}>Refresh</button>
+            </div>
+            <br></br><br></br>
+            <div className = "row" style ={{float:"right" }}>
+               <label>
+                    <span style={{ display : "flex",fontSize: "140%" }}> Auto Run</span>
+                    <Switch id="toggle" onChange={this.handleSwitchChange} checked={this.state.Toggleoption} 
+                       offColor="#000" className="react-switch"/>                        
+              </label>
+            </div>
+            <div className = "row">
+                <ToolkitProvider keyField="id"
+                    data={products}
+                    columns={columns}
+                    search
+                    exportCSV
+                >
                 {
                     (props: { csvProps: JSX.IntrinsicAttributes; searchProps: JSX.IntrinsicAttributes; baseProps: JSX.IntrinsicAttributes; }) => (
                         <div>
-                            <ExportCSVButton {...props.csvProps}>Export CSV!!</ExportCSVButton>
-                            <hr />
+                            {/* <ExportCSVButton {...props.csvProps}>Export CSV!!</ExportCSVButton> */}     
                             <MySearch {...props.searchProps} id="SearchBar" />
                             <br></br>
                             <Clearbutton {...props.searchProps} />
                             <br></br>
                             <br></br>
                             <BootstrapTable  {...props.baseProps} keyField='id' data={products} columns={columns} noDataIndication="Table is Empty"
-                                defaultSorted={defaultSorted} filter={filterFactory()}
-                            //          loading={ true }  //only loading is true, react-bootstrap-table will render overlay
-                            //          overlay={ overlayFactory({ spinner: true, background: 'rgba(192,192,192,0.3)' })}
+                              defaultSorted={defaultSorted} filter={filterFactory()}
                             />
                         </div>
                     )
                 }
-            </ToolkitProvider>
+                </ToolkitProvider>
+            </div>
+        </div>
         );
     }
 }

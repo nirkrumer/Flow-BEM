@@ -4,10 +4,10 @@ import { IManywho } from './models/interfaces';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { eLoadingState } from './models/FlowBaseComponent';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
-import { FlowObjectData, IFlowObjectData } from './models/FlowObjectData';
-import { FlowOutcome } from './models/FlowOutcome';
+import { FlowObjectData} from './models/FlowObjectData';
 import RunSelect from './RunSelect';
-
+import CheckBox from 'react-animated-checkbox'
+import './RunProcess.css'
 
 declare const manywho: IManywho;
 
@@ -23,6 +23,8 @@ export class RunProcess extends FlowPage {
         this.SelecthandleChange = this.SelecthandleChange.bind(this);
         this.state = {selected: [] };
     }
+
+/* **************************************************************************************** */
     
     async componentDidMount(){
         await super.componentDidMount();
@@ -31,12 +33,14 @@ export class RunProcess extends FlowPage {
         this.forceUpdate();
         return Promise.resolve();
     }
-    moveHappened(xhr: XMLHttpRequest, request: any) {
-    }    
-
+    
+    moveHappened(xhr: XMLHttpRequest, request: any) {}    
+    
     async componentWillUnmount(): Promise<void> {
         (manywho as any).eventManager.removeDoneListener(this.componentId);
     }
+
+/* ************************************************************************************ */
     
     onRunTypeRevChanged(e : any) {
         this.listmode = 'Revenue' ;
@@ -61,34 +65,39 @@ export class RunProcess extends FlowPage {
         this.setState(
             {selected : selectedOption}            
           ); 
-        
-        console.log (selectedOption)
       }
     
-    runProcessexe () {
+    async runProcessexe () {
         //let auth = "BOOMI_TOKEN.naturalintelligence-ZWMKH3:a64490be-56ce-4028-876d-2ec269ce9e09";
-        let auth = "BOOMI_TOKEN.nir.krumer@naturalint.com:05271865-4e87-40e1-ba13-037df1aecfd4";
-        
+        //eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE4NjUxMzgwLCJ1aWQiOjI1MjM0NzAsImlhZCI6IjIwMTktMDctMjQgMTA6NDg6MDkgVVRDIiwicGVyIjoibWU6d3JpdGUifQ.XTpObwX2qxEOvIbFfQwGkfAyZuckwV76KIM1JksmMIg
+        let auth = "BOOMI_TOKEN.nir.krumer@naturalint.com:bc2b3e9c-d32b-4433-9e54-a67801ea9113";
         let buf = Buffer.from(auth);
         let encodedData = buf.toString('base64');
         let username = 'boomi@naturalint.com';
         let password = 'b89qPL4b';
         let base64 = require('base-64');
-        fetch("https://api.boomi.com/api/rest/v1/naturalintelligence-ZWMKH3/executeProcess", 
+        let response = await fetch(//"https://boomi-external.naturalint.com:9090/fs/Flow_Service",
+            "https://api.boomi.com/api/rest/v1/",//naturalintelligence-ZWMKH3/executeProcess",        
         { 
             method: "POST", 
             body: JSON.stringify(
-                {"processId":"58594fa3-a612-4403-b142-4cda22ffcb70" ,
-                "atomId":"2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"
-                }), 
+                  {"processId":"58594fa3-a612-4403-b142-4cda22ffcb70" ,
+                  "atomId":"2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"
+                 }),
+                //{"PartnerId" : 1, "PartnerName":"a" , "Accounts" : []}
+               // ), 
             headers : new Headers({
-                "Authorization": "Bearer " + encodedData ,//base64.encode(username + ":" + password),
+                "Authorization": "Basic " + encodedData ,
+                //base64.encode(username + ":" + password),
                 "Accept": "application/json",                
                 "Content-Type": "application/json"
             }),
             credentials: "same-origin",
             mode: 'no-cors'
-        })}
+        }
+        )
+        let test = '' ;
+    }
         /*.then(async (response: any) => {
             if(response.status === 200) {
                 const flowToken = await CallResult._getBodyText(response);
@@ -102,30 +111,28 @@ export class RunProcess extends FlowPage {
                 result = CallResult.newInstance(false,"not connected", errorText);
             }
         });*/
-    
+
+/* ********************************************************************************** */    
     
     render() {
         const processes : any = [] ;
         const selected_processes = "BEM:List:selected_processes"
-        let process_element : any = {} ;     
-        
-    
+        let process_element : any = {} ;    
         if (this.loadingState !== eLoadingState.ready) {  
             return (<div></div>) ;
         }
-        else
-        { 
-        let rev_List : FlowObjectDataArray ;
-        switch(this.listmode) {
-            case "Revenue" :
-                rev_List = this.fields["BEM:List:Revenue_Site"].value as FlowObjectDataArray
-                break;
-            case "Subid":
-                rev_List = this.fields["BEM:List:Subid_Site"].value as FlowObjectDataArray
-                break;
-            case "Fetch":
-                rev_List = this.fields["BEM:List:FetchProcess"].value as FlowObjectDataArray
-                break;
+        else { 
+            let rev_List : FlowObjectDataArray ;
+            switch(this.listmode) {
+                case "Revenue" :
+                    rev_List = this.fields["BEM:List:Revenue_Site"].value as FlowObjectDataArray
+                    break;
+                case "Subid":
+                    rev_List = this.fields["BEM:List:Subid_Site"].value as FlowObjectDataArray
+                    break;
+                case "Fetch":
+                    rev_List = this.fields["BEM:List:FetchProcess"].value as FlowObjectDataArray
+                    break;
         } 
         rev_List.items.forEach((item: FlowObjectData) => {
             process_element = {}
@@ -142,49 +149,59 @@ export class RunProcess extends FlowPage {
             processes.push(process_element)
         })
     return (
-        <div className = "row"> 
-            <div className ="col-sm-6">
-                <div className="radio">
-                    <label>
-                        <input type="radio" name="runType" value="revenues"  checked = {this.ismoderev}
-                        onChange={this.onRunTypeRevChanged}/>  Includes Revenues 
-                    </label>
-                </div>
-                <div className="radio">
-                    <label>
-                        <input type="radio" name="runType" value="subids" 
-                        onChange={this.onRunTypeSidChanged}/> Subids Only
-                    </label>
-                </div>
-                <div className="radio">
-                    <label>
-                        <input type="radio" name="runType" value="Fetch" 
-                        onChange={this.onRunTypeFetchChanged}/> Fetch
-                    </label>          
-                </div>
-
-                <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
-                <br></br>
-                <button id = "runProcess" onClick = {this.runProcessexe} type="button"
-                className = "btn btn-primary" style = {{display : "iconandtext"}}> Run Site Test </button>
-                <br></br>
-                <br></br>
-            </div>
-            <div className ="col-sm-6"> 
-                <label className="form-check-label">
-                    <input type="checkbox" name="runDates" value="runDates" 
-                    /> Use dates for run?                     
-                </label>
-                <br></br>
-                <label> From Date
-                    <input type = "date" />  
-                </label> 
-                <br></br>
-                <label> To Date
-                    <input type = "date" />  
-                </label>
+        <div className = "container"> 
+             <div className = "Bem-header">
+                <h2> Run Process </h2>
             </div> 
-        </div>            
+                <div className ="col-sm-6">
+                    <div className = "Bem-row"> 
+                        <div className="radio">
+                            <label>
+                                <input type="radio" name="runType" value="revenues"  checked = {this.ismoderev}
+                                onChange={this.onRunTypeRevChanged}/>  Includes Revenues 
+                            </label>
+                        </div>
+                        <div className="radio">
+                            <label>
+                                <input type="radio" name="runType" value="subids" 
+                                onChange={this.onRunTypeSidChanged}/> Subids Only
+                            </label>
+                        </div>
+                        <div className="radio">
+                            <label>
+                                <input type="radio" name="runType" value="Fetch" 
+                                onChange={this.onRunTypeFetchChanged}/> Fetching
+                            </label>          
+                        </div>
+                    </div>
+                    <div className = "Bem-row"> 
+                       <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
+                    </div>
+                    <div className = "Bem-btn"> 
+                        <button id = "runProcess" onClick = {this.runProcessexe} type="button"
+                        className = "btn btn-primary" style = {{display : "iconandtext"}}> Run </button>
+                    </div>
+                </div>
+                <div className ="col-sm-1"></div> 
+                <div className ="col-sm-5">    
+                    <div className = "Bem-row"> 
+                        <CheckBox
+                            checked={this.state.checked}
+                            checkBoxStyle={{
+                                checkedColor: "#0790dd",
+                                size: 20,
+                                unCheckedColor: "#b8b8b8"
+                        }}
+                        duration={400}
+                        onClick={()=>{this.setState({ checked:!this.state.checked });}}
+                        /> 
+                        <span style={{ display: "flex",fontSize: "140%" }}> Use dates for run?</span>       
+                    </div>
+                    <div className = "Bem-row"> 
+                         <input placeholder="Selected date" type="text" id="date-picker-example" className="form-control datepicker"/>           
+                    </div>
+                </div>  
+           </div>
             )   
         }
     }
