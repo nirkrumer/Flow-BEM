@@ -8,3 +8,25 @@
 .Bem-btn{
     margin-top: 120px;
 }
+
+/* .e-success{
+    font-size: 50px;
+}  */
+
+.e-checkbox-wrapper.e-success .e-frame.e-check,
+.e-checkbox-wrapper.e-success .e-checkbox:focus + .e-frame.e-check { 
+  background-color: #0790dd;
+}
+
+ .e-checkbox-wrapper.e-success:hover .e-frame.e-check { 
+    background-color: #229CDE;
+} 
+
+.e-checkbox-wrapper.e-info .e-frame.e-check,
+.e-checkbox-wrapper.e-info .e-checkbox:focus + .e-frame.e-check {
+    background-color: black;
+}
+
+.e-checkbox-wrapper.e-info:hover .e-frame.e-check {
+    background-color: #181817;
+}

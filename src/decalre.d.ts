@@ -5,9 +5,11 @@ declare module 'react-bootstrap-table2-overlay';
  
  declare module 'react-animated-checkbox';
  declare module 'react-bootstrap-table2-toolkit';
+ declare module 'react-datepicker';
  declare module 'react-dates';
- declare module JSX {
+ declare module '@syncfusion/ej2-react-buttons';
+ declare module JSX { 
     interface IntrinsicElements {
-      "run_select": MyCustomElementClass
+      "RunSelect": MyCustomElementClass
     }
   }

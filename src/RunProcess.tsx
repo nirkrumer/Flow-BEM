@@ -6,8 +6,12 @@ import { eLoadingState } from './models/FlowBaseComponent';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
 import { FlowObjectData} from './models/FlowObjectData';
 import RunSelect from './RunSelect';
-import CheckBox from 'react-animated-checkbox'
 import './RunProcess.css'
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
+import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 
 declare const manywho: IManywho;
 
@@ -15,21 +19,35 @@ export class RunProcess extends FlowPage {
 
     listmode:String = 'Revenue' ;
     ismoderev:boolean = true ;
+    
     constructor(props: any) {
         super(props);        
         this.onRunTypeRevChanged = this.onRunTypeRevChanged.bind(this) ;
         this.onRunTypeSidChanged = this.onRunTypeSidChanged.bind(this) ;
         this.onRunTypeFetchChanged = this.onRunTypeFetchChanged.bind(this) ;
         this.SelecthandleChange = this.SelecthandleChange.bind(this);
-        this.state = {selected: [] };
+        this.onDateStartChange = this.onDateStartChange.bind(this)
+        this.onDateEndChange = this.onDateEndChange.bind(this)
+        this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
+        this.initDates = this.initDates.bind(this)
+        this.handleBillingClick = this.handleBillingClick.bind(this)
+        this.state = {
+            selected: [] ,
+            startDate : new Date(),
+            endDate : new Date(),
+            isHidden: true,
+            checked : false,
+            billingChecked : false
+        };
     }
 
 /* **************************************************************************************** */
     
-    async componentDidMount(){
+    async componentDidMount(){  
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
         this.onRunTypeRevChanged(undefined); 
+        this.initDates()
         this.forceUpdate();
         return Promise.resolve();
     }
@@ -41,32 +59,67 @@ export class RunProcess extends FlowPage {
     }
 
 /* ************************************************************************************ */
-    
     onRunTypeRevChanged(e : any) {
         this.listmode = 'Revenue' ;
         this.ismoderev = true;
         this.forceUpdate();
-      }
-    
+      }    
     onRunTypeSidChanged(e : any) {
         this.listmode = 'Subid';
         this.ismoderev = false;
         this.forceUpdate();
       }
-    
     onRunTypeFetchChanged(e : any) {
         this.listmode = 'Fetch';
         this.ismoderev = false;
         this.forceUpdate();
       }
     
-      SelecthandleChange (selectedOption : React.FormEvent) {   
+    SelecthandleChange (selectedOption : React.FormEvent) {   
         this.forceUpdate();
         this.setState(
             {selected : selectedOption}            
           ); 
       }
-    
+    handleCheckboxClick(){
+        this.setState({
+            checked:!this.state.checked,
+            isHidden:this.state.checked
+        });
+    }
+
+    onDateStartChange(startDate:any){
+        this.setState({ startDate })
+      }
+    onDateEndChange(endDate:any){
+        this.setState({ endDate })
+      }
+
+    initDates(){
+        const now = new Date();
+        const firstday = new Date(now.getFullYear(), now.getMonth(), 1)
+        const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate()-1)
+        this.setState({
+            startDate : firstday,
+            endDate : yesterday
+         })
+    }
+    handleBillingClick(){
+        this.setState({billingChecked : !this.state.billingChecked})
+        if (this.state.billingChecked){
+            const now = new Date ();
+            const first = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            const second = new Date(now.getFullYear(), now.getMonth() , 0)
+            this.setState({
+                startDate : first,
+                endDate : second
+            })
+        }
+        else{
+            this.initDates();
+        }
+    }
+
     async runProcessexe () {
         //let auth = "BOOMI_TOKEN.naturalintelligence-ZWMKH3:a64490be-56ce-4028-876d-2ec269ce9e09";
         //eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE4NjUxMzgwLCJ1aWQiOjI1MjM0NzAsImlhZCI6IjIwMTktMDctMjQgMTA6NDg6MDkgVVRDIiwicGVyIjoibWU6d3JpdGUifQ.XTpObwX2qxEOvIbFfQwGkfAyZuckwV76KIM1JksmMIg
@@ -118,10 +171,12 @@ export class RunProcess extends FlowPage {
         const processes : any = [] ;
         const selected_processes = "BEM:List:selected_processes"
         let process_element : any = {} ;    
+        const hideStyle = this.state.isHidden ? {display : "none"} : {} ;
+        const hideStyleHR = this.state.isHidden ? {display : "none"} : {border:"1px solid grey"} ;
         if (this.loadingState !== eLoadingState.ready) {  
             return (<div></div>) ;
         }
-        else { 
+        else {
             let rev_List : FlowObjectDataArray ;
             switch(this.listmode) {
                 case "Revenue" :
@@ -185,20 +240,52 @@ export class RunProcess extends FlowPage {
                 <div className ="col-sm-1"></div> 
                 <div className ="col-sm-5">    
                     <div className = "Bem-row"> 
-                        <CheckBox
+                        <CheckBoxComponent 
+                            label="Use dates for run"
                             checked={this.state.checked}
-                            checkBoxStyle={{
-                                checkedColor: "#0790dd",
-                                size: 20,
-                                unCheckedColor: "#b8b8b8"
-                        }}
-                        duration={400}
-                        onClick={()=>{this.setState({ checked:!this.state.checked });}}
-                        /> 
-                        <span style={{ display: "flex",fontSize: "140%" }}> Use dates for run?</span>       
+                            onChange={this.handleCheckboxClick}
+                            cssClass="e-success"
+                        />
+                        {/* <span style={{ display: "block-inline",fontSize: "150%" }}> Use dates for run?</span>         */}
+                    </div>
+                    <hr style={hideStyleHR}></hr>
+                    <div className = "Bem-row"> 
+                        <div style={hideStyle}>
+                            <CheckBoxComponent 
+                                label="Billing?"
+                                checked={this.state.billingChecked}
+                                onChange={this.handleBillingClick}
+                                cssClass="e-info"
+                            />
+                        </div>
                     </div>
                     <div className = "Bem-row"> 
-                         <input placeholder="Selected date" type="text" id="date-picker-example" className="form-control datepicker"/>           
+                        <div className ="col-sm-3" style={hideStyle}>
+                            <div className = "Bem-row"> 
+                                <span style={{ display : "flex",fontSize: "110%" }}> From Date</span>
+                            </div>
+                            <div className = "Bem-row"> 
+                                <span style={{ display : "flex",fontSize: "110%" }}> To Date</span>
+                            </div>
+                        </div>
+                        <div className ="col-sm-2" style={hideStyle}>
+                            <div className = "Bem-row"> 
+                                 <DatePicker
+                                    onChange={this.onDateStartChange} selected={this.state.startDate}
+                                    dateFormat="dd/MM/yyyy"
+                                    value = {this.state.startDate}    
+                                    todayButton="Today"
+                                /> 
+                            </div>
+                            <div className = "Bem-row"> 
+                                <DatePicker
+                                    onChange={this.onDateEndChange} selected={this.state.endDate}
+                                    dateFormat="dd/MM/yyyy"
+                                    value = {this.state.endDate}    
+                                    todayButton="Today"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>  
            </div>

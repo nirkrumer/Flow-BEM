@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-import { throwStatement } from 'babel-types';
 
 export default class RunSelect extends React.Component<any, any> {
   

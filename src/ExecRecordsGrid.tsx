@@ -49,7 +49,7 @@ export class ExecRecordsGrid extends FlowPage {
             const triggeroutcome_this = this;
             this.timerId = window.setInterval(function(){
                 triggeroutcome_this.triggerOutcome('refresh');
-                } , 10000)
+                } , 60000)
             }    
         else {
             window.clearInterval(this.timerId);
@@ -239,7 +239,7 @@ export class ExecRecordsGrid extends FlowPage {
                     <input id='SearchBar'
                         className="form-control"
                         style ={{width:"400px"}}
-                        placeholder="Search..."
+                        placeholder="Search ..."
                         type="text"
                         ref={n => inputs = n}
                         onChange={handleClick}
@@ -251,10 +251,7 @@ export class ExecRecordsGrid extends FlowPage {
         const Clearbutton = (props: any) => {
             
             const clearhandleClick = () => {
-                inputs.value = ''
-                // this.setState (
-                //     {input : ''}            
-                // )
+                props.onSearch(inputs.value).onClear();
             }
             return (
                 <button className="btn btn-default"
@@ -283,12 +280,12 @@ export class ExecRecordsGrid extends FlowPage {
                     exportCSV
                 >
                 {
-                    (props: { csvProps: JSX.IntrinsicAttributes; searchProps: JSX.IntrinsicAttributes; baseProps: JSX.IntrinsicAttributes; }) => (
+                    (props: { csvProps: JSX.IntrinsicAttributes; searchProps: {onClear:JSX.IntrinsicAttributes}; baseProps: JSX.IntrinsicAttributes;}) => (
                         <div>
                             {/* <ExportCSVButton {...props.csvProps}>Export CSV!!</ExportCSVButton> */}     
                             <MySearch {...props.searchProps} id="SearchBar" />
                             <br></br>
-                            <Clearbutton {...props.searchProps} />
+                            <Clearbutton {...props.searchProps.onClear} />
                             <br></br>
                             <br></br>
                             <BootstrapTable  {...props.baseProps} keyField='id' data={products} columns={columns} noDataIndication="Table is Empty"
