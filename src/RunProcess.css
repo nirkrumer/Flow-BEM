@@ -30,3 +30,9 @@
 .e-checkbox-wrapper.e-info:hover .e-frame.e-check {
     background-color: #181817;
 }
+
+.react-switch {
+    vertical-align: middle;
+    margin-left: 4px;
+    display: "flex"
+  }

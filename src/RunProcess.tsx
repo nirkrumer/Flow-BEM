@@ -12,6 +12,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
+import Switch from "react-switch";
+import { borderRadius } from 'react-select/src/theme';
 
 declare const manywho: IManywho;
 
@@ -19,6 +21,7 @@ export class RunProcess extends FlowPage {
 
     listmode:String = 'Revenue' ;
     ismoderev:boolean = true ;
+    chosenProcesses: String[] = [];
     
     constructor(props: any) {
         super(props);        
@@ -31,13 +34,15 @@ export class RunProcess extends FlowPage {
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
         this.initDates = this.initDates.bind(this)
         this.handleBillingClick = this.handleBillingClick.bind(this)
+        this.handleEnvChange = this.handleEnvChange.bind(this)
         this.state = {
-            selected: [] ,
+            selectedOption: [] ,
             startDate : new Date(),
             endDate : new Date(),
             isHidden: true,
             checked : false,
-            billingChecked : false
+            billingChecked : false,
+            envOption : true
         };
     }
 
@@ -77,9 +82,7 @@ export class RunProcess extends FlowPage {
     
     SelecthandleChange (selectedOption : React.FormEvent) {   
         this.forceUpdate();
-        this.setState(
-            {selected : selectedOption}            
-          ); 
+        this.setState({selectedOption}); 
       }
     handleCheckboxClick(){
         this.setState({
@@ -119,52 +122,37 @@ export class RunProcess extends FlowPage {
             this.initDates();
         }
     }
-
-    async runProcessexe () {
-        //let auth = "BOOMI_TOKEN.naturalintelligence-ZWMKH3:a64490be-56ce-4028-876d-2ec269ce9e09";
-        //eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE4NjUxMzgwLCJ1aWQiOjI1MjM0NzAsImlhZCI6IjIwMTktMDctMjQgMTA6NDg6MDkgVVRDIiwicGVyIjoibWU6d3JpdGUifQ.XTpObwX2qxEOvIbFfQwGkfAyZuckwV76KIM1JksmMIg
-        let auth = "BOOMI_TOKEN.nir.krumer@naturalint.com:bc2b3e9c-d32b-4433-9e54-a67801ea9113";
-        let buf = Buffer.from(auth);
-        let encodedData = buf.toString('base64');
-        let username = 'boomi@naturalint.com';
-        let password = 'b89qPL4b';
-        let base64 = require('base-64');
-        let response = await fetch(//"https://boomi-external.naturalint.com:9090/fs/Flow_Service",
-            "https://api.boomi.com/api/rest/v1/",//naturalintelligence-ZWMKH3/executeProcess",        
-        { 
-            method: "POST", 
-            body: JSON.stringify(
-                  {"processId":"58594fa3-a612-4403-b142-4cda22ffcb70" ,
-                  "atomId":"2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"
-                 }),
-                //{"PartnerId" : 1, "PartnerName":"a" , "Accounts" : []}
-               // ), 
-            headers : new Headers({
-                "Authorization": "Basic " + encodedData ,
-                //base64.encode(username + ":" + password),
-                "Accept": "application/json",                
-                "Content-Type": "application/json"
-            }),
-            credentials: "same-origin",
-            mode: 'no-cors'
-        }
-        )
-        let test = '' ;
+    handleEnvChange(envOption:any){
+        this.setState({ envOption });
     }
-        /*.then(async (response: any) => {
-            if(response.status === 200) {
-                const flowToken = await CallResult._getBodyText(response);
-                console.log(flowToken);
-                result = CallResult.newInstance(true,"connected", flowToken);
-            }
-            else {
-                //error
-                const errorText = await CallResult._getBodyText(response);
-               console.log("Logged In Error - " + errorText);
-                result = CallResult.newInstance(false,"not connected", errorText);
-            }
-        });*/
 
+    async runProcessexe (processesToRun:any , env:String) {
+        // let username = 'boomi@naturalint.com';
+        // let password = 'b89qPL4b';
+        let envToRun:String;
+            if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
+            else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
+        let username = 'naturalintelligence-ZWMKH3';
+        let password = 'a64490be-56ce-4028-876d-2ec269ce9e09'
+        const processArray = processesToRun.map(((process :any) => {
+            let response = fetch("https://boomi.naturalint.com:9090/ws/simple/queryExecuteprocess;boomi_auth=" + btoa(username + ':' + password) ,
+            { 
+                method: "POST", 
+                body: JSON.stringify(
+                      {"processId":process.value ,
+                      "atomId":envToRun
+                     }),
+                headers : new Headers({
+                    "Accept": "application/json",                
+                    "Content-Type": "application/json"
+                }),
+                credentials: "same-origin",
+                mode: 'no-cors'
+            })
+            
+            //console.log(response.s)       
+        })) ;         
+    }
 /* ********************************************************************************** */    
     
     render() {
@@ -212,19 +200,19 @@ export class RunProcess extends FlowPage {
                     <div className = "Bem-row"> 
                         <div className="radio">
                             <label>
-                                <input type="radio" name="runType" value="revenues"  checked = {this.ismoderev}
+                                <input type="radio" name="ListType" value="revenues"  checked = {this.ismoderev}
                                 onChange={this.onRunTypeRevChanged}/>  Includes Revenues 
                             </label>
                         </div>
                         <div className="radio">
                             <label>
-                                <input type="radio" name="runType" value="subids" 
+                                <input type="radio" name="ListType" value="subids" 
                                 onChange={this.onRunTypeSidChanged}/> Subids Only
                             </label>
                         </div>
                         <div className="radio">
                             <label>
-                                <input type="radio" name="runType" value="Fetch" 
+                                <input type="radio" name="ListType" value="Fetch" 
                                 onChange={this.onRunTypeFetchChanged}/> Fetching
                             </label>          
                         </div>
@@ -232,13 +220,36 @@ export class RunProcess extends FlowPage {
                     <div className = "Bem-row"> 
                        <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
                     </div>
-                    <div className = "Bem-btn"> 
-                        <button id = "runProcess" onClick = {this.runProcessexe} type="button"
-                        className = "btn btn-primary" style = {{display : "iconandtext"}}> Run </button>
+                    <div className = "Bem-btn">       
+                        <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
+                        type="button" className = "btn btn-primary" style = {{display : "iconandtext"}}> Run </button>
                     </div>
                 </div>
+                
                 <div className ="col-sm-1"></div> 
                 <div className ="col-sm-5">    
+                    <div className = "Bem-row">
+                    <Switch id="toggle" onChange={this.handleEnvChange} checked={this.state.envOption} className="react-switch"
+                        width={140} height={40}
+                        //onColor = "#08f" 
+                        uncheckedIcon={
+                            <div style={{
+                                display: "flex",justifyContent: "center",alignItems: "center",
+                                height: "100%",fontSize: 17,color: "white",paddingRight: 2,marginRight:"45px"
+                            }}
+                            >QA
+                            </div>
+                        }
+                        checkedIcon={
+                            <div style={{
+                            display: "flex",alignItems: "center",height: "100%",fontSize: 17,
+                            color: "white",paddingLeft: 2,marginLeft:"10px"
+                            }}
+                        >Production
+                            </div>
+                        }
+                        />   
+                    </div>
                     <div className = "Bem-row"> 
                         <CheckBoxComponent 
                             label="Use dates for run"
@@ -257,7 +268,7 @@ export class RunProcess extends FlowPage {
                                 onChange={this.handleBillingClick}
                                 cssClass="e-info"
                             />
-                        </div>
+                        </div>  
                     </div>
                     <div className = "Bem-row"> 
                         <div className ="col-sm-3" style={hideStyle}>

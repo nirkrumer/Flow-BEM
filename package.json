@@ -8,7 +8,8 @@
     "build": "webpack -p --config webpack.production.config.js",
     "build-no-source-map": "webpack -p --config webpack.production.config.js --devtool none",
     "update": "node update.js",
-    "debug": "ngrok http --host-header=rewrite 8080"
+    "debug": "ngrok http --host-header=rewrite 8081",
+    "proxy": "http://localhost:8081/"
   },
   "author": "Dell Boomi",
   "license": "MIT",
@@ -23,6 +24,7 @@
     "base-64": "^0.1.0",
     "bootstrap": "^4.3.1",
     "dedent": "^0.7.0",
+    "express": "^4.17.1",
     "lodash.throttle": "^4.1.1",
     "moment": "^2.24.0",
     "pretty-checkbox": "^3.0.3",

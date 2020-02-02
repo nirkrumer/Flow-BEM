@@ -8,6 +8,7 @@ import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 export declare class RunProcess extends FlowPage {
     listmode: String;
     ismoderev: boolean;
+    chosenProcesses: String[];
     constructor(props: any);
     componentDidMount(): Promise<void>;
     moveHappened(xhr: XMLHttpRequest, request: any): void;
@@ -21,7 +22,8 @@ export declare class RunProcess extends FlowPage {
     onDateEndChange(endDate: any): void;
     initDates(): void;
     handleBillingClick(): void;
-    runProcessexe(): Promise<void>;
+    handleEnvChange(envOption: any): void;
+    runProcessexe(processesToRun: any, env: String): Promise<void>;
     render(): JSX.Element;
 }
 export default RunProcess;
