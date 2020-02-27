@@ -172,7 +172,7 @@ export default class ModalDialog extends React.Component<any, any> {
       <button 
         className="modal-dialog-button-bar-button" 
         title="Cancel" 
-        onMouseDown={(e) => {e.stopPropagation();button.handler()}}
+        onMouseDown={(e:any) => {e.stopPropagation();button.handler()}}
       >
         {button.label}
       </button>

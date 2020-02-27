@@ -33,10 +33,13 @@
 
  .react-switch {
   vertical-align: middle;
-  margin-left: 4px;
+  /* margin-left: 4px; */
   display: "flex"
 }
 .Bem-header{
   margin-bottom: 70px;
   font-weight: bold;
+}
+.Bem-row{
+  margin-bottom: 30px;
 }

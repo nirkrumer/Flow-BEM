@@ -5,25 +5,34 @@ import { FlowObjectDataArray } from './models/FlowObjectDataArray';
 import { FlowObjectData} from './models/FlowObjectData';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import './ExecRecordsGrid.css';
-import BootstrapTable from 'react-bootstrap-table-next';
-import ToolkitProvider, { CSVExport, Search } from 'react-bootstrap-table2-toolkit';
-import filterFactory from 'react-bootstrap-table2-filter';
+import BSTable from './BSTable';
 import { eLoadingState } from './models/FlowBaseComponent';
 import Switch from "react-switch";
+import Notiflix from "notiflix-react";
+import Select from 'react-select';
 
 declare const manywho: IManywho;
 
 export class ExecRecordsGrid extends FlowPage {
     autorun : String ;
     timerId : any ;
-
+    listmode:String = 'Prod' ;
+    ismoderev:boolean = true ;
+    
     constructor(props: any) {
         super(props);
         this.handleSwitchChange = this.handleSwitchChange.bind(this)
-        this.refrshTable = this.refrshTable.bind(this)
+        this.refreshTable = this.refreshTable.bind(this)
+        this.flowrefreshTable = this.flowrefreshTable.bind(this)
+        this.runTypeHandler = this.runTypeHandler.bind(this)
+        this.timeRangeHandler = this.timeRangeHandler.bind(this)
         this.state = {
             Toggleoption : false,
-            input : ''   
+            input : '',
+            tabledata : [],
+            is_loading : false,
+            selectedRTOption: { value: 'Both', label: 'Both' },
+            selectedRangeOption: { value: '6H', label: 'Last 6 hours' }
         }
     }
     async componentDidMount() {
@@ -42,6 +51,21 @@ export class ExecRecordsGrid extends FlowPage {
 
 /* **************************************************************************** */
 
+    onRunTypeProd(e : any) {
+        this.listmode = 'Production' ;
+        this.ismoderev = true;
+        this.forceUpdate();
+    }    
+    onRunTypeQA(e : any) {
+        this.listmode = 'QA';
+        this.ismoderev = false;
+        this.forceUpdate();
+    }
+    onRunTypeBoth(e : any) {
+        this.listmode = 'Both';
+        this.ismoderev = false;
+        this.forceUpdate();
+    }
     handleSwitchChange(Toggleoption : boolean){
         this.setState({ Toggleoption });
         this.autorun = Toggleoption ? 'On' : 'Off';
@@ -55,20 +79,102 @@ export class ExecRecordsGrid extends FlowPage {
             window.clearInterval(this.timerId);
         }
     }
-    refrshTable(){
-        this.triggerOutcome('refresh');
+    runTypeHandler(selectedRTOption:any){
+        this.setState({selectedRTOption})
     }
-        
+    timeRangeHandler(selectedRangeOption:any){
+        this.setState({selectedRangeOption})
+    }
+
+    async refreshTable() : Promise<any> {
+        this.setState({is_loading:true});
+        await fetch("https://boomi.naturalint.com:9090/ws/simple/getExecutionRecords;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+            { 
+                method: "POST",
+                body: JSON.stringify(
+                    {"env": "123"}), 
+                headers : new Headers({
+                    "Accept": "application/json",                
+                    "Content-Type": "application/json",
+                }),
+                  credentials: "same-origin",
+                  mode:"no-cors"
+            })
+           .then(res=>console.log(res)) 
+            // .then (response => {
+
+            //     console.log(response.data)
+            //     this.setState({ tabledata: response.data, is_loading: false})
+            // })
+
+/*******************    AXIOS    ******************************** */
+
+    //     axios.post("https://boomi.naturalint.com:9090/ws/simple/getExecutionRecords;boomi_auth=" + btoa(username + ':' + password),
+    //     {"env": "123", mode: 'no-cors'},
+    //     {
+    //         headers : {
+    //             mode: "no-cors",
+    //             credentials: "same-origin",
+    //             'Access-Control-Allow-Origin': true
+    //         }}
+    //     )
+    //     .then(res => {
+    //         console.log(res);
+    //         console.log(res.data);
+    //   })
+            Notiflix.Notify.Info('Page is refreshing...');
+            this.forceUpdate();            
+        }
+       async flowrefreshTable(){
+            this.fields['BEM:Environment_selected'].value = this.state.selectedRTOption.value
+            this.fields['BEM:timeRange_selected'].value = this.state.selectedRangeOption.value
+        await this.updateValues([this.fields['BEM:Environment_selected'],this.fields['BEM:timeRange_selected']]);
+        await this.triggerOutcome('Refresh');
+        }
+    async cancelHandler(executionId:any){
+        let username = 'naturalintelligence-ZWMKH3';
+        let password = 'a64490be-56ce-4028-876d-2ec269ce9e09'
+        // this.triggerOutcome('refresh');
+        await fetch("https://boomi.naturalint.com:9090/ws/simple/queryCancelExecution;boomi_auth=" + btoa(username + ':' + password) ,
+            { 
+                method: "POST",
+                body: JSON.stringify(
+                    {"executionId": executionId}), 
+                headers : new Headers({
+                    "Accept": "application/json",                
+                    "Content-Type": "application/json"
+                }),
+                credentials: "same-origin",
+                mode: 'no-cors'
+            })
+            Notiflix.Notify.Info('Cancelation request has been sent');
+        }
+    
+    
     render() {
         const products: any = [];
         let product_element: any = {};
+        
+        const  runTypeOptions = [
+            { value: 'Production', label: 'Production' },
+            { value: 'QA', label: 'QA' },
+            { value: 'Both', label: 'Both' }
+          ]
+        const timeRangeOptions = [
+            { value: '1H ', label: 'Last Hour' },
+            { value: '3H ', label: 'Last 3 Hours' },
+            { value: '6H', label: 'Last 6 Hours' },
+            { value: '24H', label: 'Last 24 Hours' }
+          ]
+    
         if (this.loadingState !== eLoadingState.ready) {
             return (<div></div>);
         }
         else {
+            Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
             const api_request: FlowObjectDataArray = this.fields["BEM:List:Exec_API_Request"].value as FlowObjectDataArray;
             api_request.items.forEach((item: FlowObjectData) => {
-                product_element = {}
+                product_element = {};
                 Object.keys(item.properties).forEach((key: string) => {
                     switch (key) {
                         case "bns:processName":
@@ -92,6 +198,9 @@ export class ExecRecordsGrid extends FlowPage {
                         case "bns:executionDuration":
                             product_element["executionDuration"] = item.properties[key].value;
                             break;
+                        case "bns:executionId":
+                            product_element["executionId"] = item.properties[key].value;
+                            break;    
                     }
                 });
                 products.push(product_element)
@@ -101,14 +210,21 @@ export class ExecRecordsGrid extends FlowPage {
             dataField: 'startTime',
             order: 'desc'
         }];
-        const selectOptions = {
-            0: 'QA',
-            1: 'Production'
-        };
-        const { SearchBar, ClearSearchButton } = Search;
-        const { ExportCSVButton } = CSVExport;
-
+       
         const columns = [
+            {
+                datafield: 'cancelbutton',
+                formatter: (cellContent: any,row:any) => {
+                    if (row.status == 'INPROCESS'){
+                        return(    
+                            <button className = 'btn btn-danger' onClick = {() => this.cancelHandler(row.executionId)}> Cancel </button>
+                        )                   
+                    }
+                },
+                headerStyle: () => {
+                    return { width: '110px' };
+                }
+            },
             {
                 dataField: 'executionType',
                 formatter: (cellContent: any) => {
@@ -154,7 +270,6 @@ export class ExecRecordsGrid extends FlowPage {
                     return { width: '100px' };
                 }
             },
-
             {
                 dataField: 'startTime',
                 text: 'Start Time',
@@ -215,6 +330,14 @@ export class ExecRecordsGrid extends FlowPage {
                 }
             }
         ];
+        
+        const rowStyle = (row:any) => {
+            let style = {};    
+            if (row.errormsg.includes("Process has been manually cancelled")){
+                style = {backgroundColor : '#c8e6c9'}
+            }
+            return style;        
+        }
         /* const MyExportCSV = (props : any) => {
              const handleClick = () => {
                props.onExport();
@@ -225,77 +348,50 @@ export class ExecRecordsGrid extends FlowPage {
                </div>
              );
            };*/
-       let inputs:any;
-        const MySearch = (props: any) => {
-        
-            const handleClick = () => {
-                props.onSearch(inputs.value);  
-                // this.setState (
-                //     {input : inputs}            
-                // )
-            };
-            return (
-                <div>
-                    <input id='SearchBar'
-                        className="form-control"
-                        style ={{width:"400px"}}
-                        placeholder="Search ..."
-                        type="text"
-                        ref={n => inputs = n}
-                        onChange={handleClick}
-                    />
-                </div>
-            );
-        };
-        
-        const Clearbutton = (props: any) => {
-            
-            const clearhandleClick = () => {
-                props.onSearch(inputs.value).onClear();
-            }
-            return (
-                <button className="btn btn-default"
-                    onClick={clearhandleClick}>Clear</button>
-            )
-        }
         /* ********************************************************************************** */
+        const tabledataTosend = (this.state.tabledata.length > 0 ) ? this.state.tabledata : products  ;
         return (
          <div className = "container">
-            <div className = "row" style ={{float:"right" }}>
-                <button className = "btn btn-primary" type="button" onClick={this.refrshTable}>Refresh</button>
+             <div className = "Bem-header">
+                <h2> Execution Screen </h2>
+            </div> 
+            <div className = "col-sm-2"> 
+            <Select
+            defaultvalue= {runTypeOptions[2]}
+                options={runTypeOptions}
+                className="basic-single"
+                closeMenuOnSelect={true}
+                onChange={this.runTypeHandler} value={this.state.selectedRTOption}
+                
+            />
             </div>
-            <br></br><br></br>
-            <div className = "row" style ={{float:"right" }}>
-               <label>
-                    <span style={{ display : "flex",fontSize: "140%" }}> Auto Run</span>
-                    <Switch id="toggle" onChange={this.handleSwitchChange} checked={this.state.Toggleoption} 
-                       offColor="#000" className="react-switch"/>                        
-              </label>
+            <div className = "col-sm-2"> 
+                <Select
+                defaultvalue= {timeRangeOptions[2]}
+                    options={timeRangeOptions}
+                    className="basic-single"
+                    closeMenuOnSelect={true}
+                    onChange={this.timeRangeHandler} value={this.state.selectedRangeOption}                   
+                />
             </div>
-            <div className = "row">
-                <ToolkitProvider keyField="id"
-                    data={products}
-                    columns={columns}
-                    search
-                    exportCSV
-                >
-                {
-                    (props: { csvProps: JSX.IntrinsicAttributes; searchProps: {onClear:JSX.IntrinsicAttributes}; baseProps: JSX.IntrinsicAttributes;}) => (
-                        <div>
-                            {/* <ExportCSVButton {...props.csvProps}>Export CSV!!</ExportCSVButton> */}     
-                            <MySearch {...props.searchProps} id="SearchBar" />
-                            <br></br>
-                            <Clearbutton {...props.searchProps.onClear} />
-                            <br></br>
-                            <br></br>
-                            <BootstrapTable  {...props.baseProps} keyField='id' data={products} columns={columns} noDataIndication="Table is Empty"
-                              defaultSorted={defaultSorted} filter={filterFactory()}
-                            />
-                        </div>
-                    )
-                }
-                </ToolkitProvider>
+            <div className = "col-sm-8"> 
+                <div className = "row" style ={{float:"right" }}>
+                    <button className = "btn btn-primary" type="button" onClick={this.flowrefreshTable}>Refresh</button>
+                </div>
+                <br></br><br></br>
+                {/* <div className = "row" style ={{float:"right" }}>
+                    <button className = "btn btn-primary" type="button" onClick={this.flowrefreshTable}>Flow Refresh</button>
+                </div> */}
+                
+                <div className = "row" style ={{float:"right" }}>
+                <label>
+                        <span style={{ display : "flex",fontSize: "140%" }}> Auto Run</span>
+                        <Switch id="toggle" onChange={this.handleSwitchChange} checked={this.state.Toggleoption} 
+                        offColor="#000" className="react-switch"/>                        
+                </label>
+                </div>
             </div>
+            <BSTable products = {tabledataTosend} columns = {columns} defaultSorted = {defaultSorted} style = {rowStyle}> </BSTable>
         </div>
         );
     }

@@ -13,7 +13,7 @@ import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 import Switch from "react-switch";
-import { borderRadius } from 'react-select/src/theme';
+import Notiflix from "notiflix-react";
 
 declare const manywho: IManywho;
 
@@ -127,31 +127,42 @@ export class RunProcess extends FlowPage {
     }
 
     async runProcessexe (processesToRun:any , env:String) {
-        // let username = 'boomi@naturalint.com';
-        // let password = 'b89qPL4b';
-        let envToRun:String;
-            if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
-            else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
-        let username = 'naturalintelligence-ZWMKH3';
-        let password = 'a64490be-56ce-4028-876d-2ec269ce9e09'
-        const processArray = processesToRun.map(((process :any) => {
-            let response = fetch("https://boomi.naturalint.com:9090/ws/simple/queryExecuteprocess;boomi_auth=" + btoa(username + ':' + password) ,
-            { 
-                method: "POST", 
-                body: JSON.stringify(
-                      {"processId":process.value ,
-                      "atomId":envToRun
-                     }),
-                headers : new Headers({
-                    "Accept": "application/json",                
-                    "Content-Type": "application/json"
-                }),
-                credentials: "same-origin",
-                mode: 'no-cors'
-            })
-            
-            //console.log(response.s)       
-        })) ;         
+        if (processesToRun.length > 0){
+            // let username = 'boomi@naturalint.com';
+            // let password = 'b89qPL4b';
+            let envToRun:String;
+                if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
+                else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
+            let useDates = (this.state.checked) ? 'Y' : '' ;
+
+            const processArray = processesToRun.map(((process :any) => {
+                fetch("https://boomi.naturalint.com:9090/ws/simple/queryExecuteprocess;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+                { 
+                    method: "POST", 
+                    body: JSON.stringify(
+                          {"processId":process.value ,
+                          "atomId":envToRun,
+                          "useDates" : useDates,
+                          "startDate" : this.state.startDate,
+                          "endDate" : this.state.endDate
+                         }),
+                    headers : new Headers({
+                        "Accept": "application/json",                
+                        "Content-Type": "application/json"
+                    }),
+                    credentials: "same-origin",
+                    mode: 'no-cors'
+                })
+                // .then(response => {
+                //     console.log(response.status)
+                //     console.log(response)
+                // })
+            })) ;  
+            Notiflix.Notify.Success(processesToRun.length + ' processes were executed!');
+        }
+        else{
+            Notiflix.Report.Failure('Execution Validation','No process was chosen','Click');
+        }
     }
 /* ********************************************************************************** */    
     
@@ -161,6 +172,7 @@ export class RunProcess extends FlowPage {
         let process_element : any = {} ;    
         const hideStyle = this.state.isHidden ? {display : "none"} : {} ;
         const hideStyleHR = this.state.isHidden ? {display : "none"} : {border:"1px solid grey"} ;
+        Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
         if (this.loadingState !== eLoadingState.ready) {  
             return (<div></div>) ;
         }
@@ -193,42 +205,75 @@ export class RunProcess extends FlowPage {
         })
     return (
         <div className = "container"> 
-             <div className = "Bem-header">
+             <div 
+            //  className = "Bem-header"
+             >
                 <h2> Run Process </h2>
             </div> 
-                <div className ="col-sm-6">
+                <div className ="col-sm-6">    
+                    <div className = "Bem-row" style ={{float:"right" }}>
+                        <Switch id="toggle" onChange={this.handleEnvChange} checked={this.state.envOption} className="react-switch"
+                            width={140} height={40}
+                            //onColor = "#08f" 
+                            uncheckedIcon={
+                                <div style={{
+                                    display: "flex",justifyContent: "center",alignItems: "center",
+                                    height: "100%",fontSize: 17,color: "white",paddingRight: 2,marginRight:"45px"
+                                }}
+                                >QA
+                                </div>
+                            }
+                            checkedIcon={
+                                <div style={{
+                                display: "flex",alignItems: "center",height: "100%",fontSize: 17,
+                                color: "white",paddingLeft: 2,marginLeft:"10px"
+                                }}
+                            >Production
+                                </div>
+                            }
+                            />   
+                    </div>
+
+                <div style ={{marginTop:"100px"}}> 
+                    <h5> Run type </h5>
+                </div>                
                     <div className = "Bem-row"> 
+                    <fieldset>
                         <div className="radio">
-                            <label>
+                            <label className = "radio-label">
                                 <input type="radio" name="ListType" value="revenues"  checked = {this.ismoderev}
                                 onChange={this.onRunTypeRevChanged}/>  Includes Revenues 
                             </label>
                         </div>
                         <div className="radio">
-                            <label>
+                            <label className = "radio-label">
                                 <input type="radio" name="ListType" value="subids" 
                                 onChange={this.onRunTypeSidChanged}/> Subids Only
                             </label>
                         </div>
                         <div className="radio">
-                            <label>
+                            <label className = "radio-label">
                                 <input type="radio" name="ListType" value="Fetch" 
                                 onChange={this.onRunTypeFetchChanged}/> Fetching
                             </label>          
                         </div>
+                    </fieldset>
                     </div>
+                    <hr style = {{border:"1px solid silver"}}></hr>
                     <div className = "Bem-row"> 
                        <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
                     </div>
-                    <div className = "Bem-btn">       
+                    <div className = "Bem-row Bem-btn">       
                         <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
-                        type="button" className = "btn btn-primary" style = {{display : "iconandtext"}}> Run </button>
+                        type="button" className = "btn btn-primary run-btn" 
+                        style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
+                        > Run </button>
                     </div>
                 </div>
                 
                 <div className ="col-sm-1"></div> 
                 <div className ="col-sm-5">    
-                    <div className = "Bem-row">
+                    {/* <div className = "Bem-row">
                     <Switch id="toggle" onChange={this.handleEnvChange} checked={this.state.envOption} className="react-switch"
                         width={140} height={40}
                         //onColor = "#08f" 
@@ -249,7 +294,7 @@ export class RunProcess extends FlowPage {
                             </div>
                         }
                         />   
-                    </div>
+                    </div> */}
                     <div className = "Bem-row"> 
                         <CheckBoxComponent 
                             label="Use dates for run"

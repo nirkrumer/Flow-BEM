@@ -7,11 +7,13 @@
 }
 .Bem-btn{
     margin-top: 120px;
+    text-align: center;
 }
-
-/* .e-success{
-    font-size: 50px;
-}  */
+/* .run-btn{
+  display:"iconandtext" !important ;
+  padding: "10px 200px" !important ;
+  font-size : "20px" !important
+} */
 
 .e-checkbox-wrapper.e-success .e-frame.e-check,
 .e-checkbox-wrapper.e-success .e-checkbox:focus + .e-frame.e-check { 
@@ -33,6 +35,17 @@
 
 .react-switch {
     vertical-align: middle;
-    margin-left: 4px;
     display: "flex"
+  }
+
+  .radio-label {
+    float: left; 
+    clear: none;
+    display: block;
+    padding: 2px 1em 0 0;
+    margin-right: 30px;
+  }
+
+  fieldset {
+    overflow: hidden
   }

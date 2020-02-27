@@ -1,0 +1,9 @@
+.Bem-row{
+    margin-bottom: 30px;
+}
+
+.react-switch {
+    vertical-align: middle;
+    margin-left: 4px;
+    display: "flex"
+  }
