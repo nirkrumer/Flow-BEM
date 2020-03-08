@@ -9,17 +9,19 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider,{ CSVExport, Search ,selectRow ,ColumnToggle} from 'react-bootstrap-table2-toolkit';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import * as $ from "jquery";
-//import {ModalHeader,ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
+// import {ModalHeader,ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 // import { Input} from 'react-bootstrap';
-// import Button from '@bit/react-bootstrap.react-bootstrap.button'
-// import Modal from '@bit/react-bootstrap.react-bootstrap.modal'
-// import ReactBootstrapStyle from '@bit/react-bootstrap.react-bootstrap.internal.style-links';
+import Button from '@bit/react-bootstrap.react-bootstrap.button';
+import Modal from '@bit/react-bootstrap.react-bootstrap.modal';
+import ReactBootstrapStyle from "@bit/react-bootstrap.react-bootstrap.internal.style-links";
 import Switch from "react-switch";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import ​'./ScheduleScreen.css';
 import cellEditFactory from 'react-bootstrap-table2-editor';
-import WeekDaysPicker from './WeekDaysPicker';
+import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
+import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 
 
 declare const manywho: IManywho;
@@ -179,9 +181,32 @@ render(){
             formatter: () => {
                 return (        
                     <div>
-                        {/* <WeekDaysPicker title = 'S'></WeekDaysPicker> */}
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Sun
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Mon
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Tue
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Wed
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Thu
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Fri
+                        </label>
+                        <label className = 'days'>
+                        <CheckBoxComponent></CheckBoxComponent> Sat
+                        </label>
                     </div>
                 )
+            },
+            headerStyle: (column: any, colIndex: any) => {
+                return { width: '450px' };
             }
         },
         {
@@ -249,8 +274,7 @@ render(){
         {/* <WeekdayPicker /> */}
         <div className = 'Bem-row'>
             <div className = "col-sm-1">
-            {/* <Switch id="toggle" onChange={this.handleSwitchChange} checked={this.state.Toggleoption} 
-                       offColor="#000" className="react-switch"/>   */}
+            {/* <ReactBootstrapStyle />  */}
             {/* <Button variant="primary" onClick={this.handleShow}>
                         Add
                     </Button>
@@ -269,7 +293,7 @@ render(){
                                     </Button>
                                 </Modal.Footer>
                             </Modal>
-                    <ReactBootstrapStyle /> */}
+                   */}
             </div>
             <div className = "col-sm-6">
                 <button className = "btn btn-success"

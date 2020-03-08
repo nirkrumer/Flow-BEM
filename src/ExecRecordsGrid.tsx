@@ -10,6 +10,7 @@ import { eLoadingState } from './models/FlowBaseComponent';
 import Switch from "react-switch";
 import Notiflix from "notiflix-react";
 import Select from 'react-select';
+import { borderRadius } from 'react-select/src/theme';
 
 declare const manywho: IManywho;
 
@@ -31,8 +32,8 @@ export class ExecRecordsGrid extends FlowPage {
             input : '',
             tabledata : [],
             is_loading : false,
-            selectedRTOption: { value: 'Both', label: 'Both' },
-            selectedRangeOption: { value: '6H', label: 'Last 6 hours' }
+            selectedRTOption: { value: 'Production', label: 'Production' },
+            selectedRangeOption: { value: '1', label: 'Last hour' }
         }
     }
     async componentDidMount() {
@@ -72,7 +73,7 @@ export class ExecRecordsGrid extends FlowPage {
         if (Toggleoption){
             const triggeroutcome_this = this;
             this.timerId = window.setInterval(function(){
-                triggeroutcome_this.triggerOutcome('refresh');
+                triggeroutcome_this.triggerOutcome('Refresh');
                 } , 60000)
             }    
         else {
@@ -131,11 +132,10 @@ export class ExecRecordsGrid extends FlowPage {
         await this.updateValues([this.fields['BEM:Environment_selected'],this.fields['BEM:timeRange_selected']]);
         await this.triggerOutcome('Refresh');
         }
+
     async cancelHandler(executionId:any){
-        let username = 'naturalintelligence-ZWMKH3';
-        let password = 'a64490be-56ce-4028-876d-2ec269ce9e09'
         // this.triggerOutcome('refresh');
-        await fetch("https://boomi.naturalint.com:9090/ws/simple/queryCancelExecution;boomi_auth=" + btoa(username + ':' + password) ,
+        await fetch("https://boomi.naturalint.com:9090/ws/simple/queryCancelExecution;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
             { 
                 method: "POST",
                 body: JSON.stringify(
@@ -161,10 +161,10 @@ export class ExecRecordsGrid extends FlowPage {
             { value: 'Both', label: 'Both' }
           ]
         const timeRangeOptions = [
-            { value: '1H ', label: 'Last Hour' },
-            { value: '3H ', label: 'Last 3 Hours' },
-            { value: '6H', label: 'Last 6 Hours' },
-            { value: '24H', label: 'Last 24 Hours' }
+            { value: '1', label: 'Last Hour' },
+            { value: '3', label: 'Last 3 Hours' },
+            { value: '6', label: 'Last 6 Hours' },
+            { value: '24', label: 'Last 24 Hours' }
           ]
     
         if (this.loadingState !== eLoadingState.ready) {
@@ -217,7 +217,8 @@ export class ExecRecordsGrid extends FlowPage {
                 formatter: (cellContent: any,row:any) => {
                     if (row.status == 'INPROCESS'){
                         return(    
-                            <button className = 'btn btn-danger' onClick = {() => this.cancelHandler(row.executionId)}> Cancel </button>
+                            <button className = 'btn btn-danger' onClick = {() => this.cancelHandler(row.executionId)}
+                            style = {{borderRadius:"25px"}}> Cancel </button>
                         )                   
                     }
                 },
@@ -299,7 +300,7 @@ export class ExecRecordsGrid extends FlowPage {
                     else {
                         if (row.errormsg.includes("Process has been manually cancelled")) {
                             return (
-                                <img src="https://files-manywho-com.s3.amazonaws.com/0ee8638b-e3bf-4f1f-a4fa-b04e0c672f20/cancelled.jpg"
+                                <img src="https://files-manywho-com.s3.amazonaws.com/0ee8638b-e3bf-4f1f-a4fa-b04e0c672f20/output-onlinejpgtools.png"
                                     style={{ width: "250px", height: "70px" }}
                                 />
                             )
@@ -334,7 +335,7 @@ export class ExecRecordsGrid extends FlowPage {
         const rowStyle = (row:any) => {
             let style = {};    
             if (row.errormsg.includes("Process has been manually cancelled")){
-                style = {backgroundColor : '#c8e6c9'}
+                style = {backgroundColor : '#ffe6cc'}
             }
             return style;        
         }
@@ -357,7 +358,7 @@ export class ExecRecordsGrid extends FlowPage {
             </div> 
             <div className = "col-sm-2"> 
             <Select
-            defaultvalue= {runTypeOptions[2]}
+            defaultvalue= {runTypeOptions[0]}
                 options={runTypeOptions}
                 className="basic-single"
                 closeMenuOnSelect={true}
@@ -367,7 +368,7 @@ export class ExecRecordsGrid extends FlowPage {
             </div>
             <div className = "col-sm-2"> 
                 <Select
-                defaultvalue= {timeRangeOptions[2]}
+                defaultvalue= {timeRangeOptions[0]}
                     options={timeRangeOptions}
                     className="basic-single"
                     closeMenuOnSelect={true}

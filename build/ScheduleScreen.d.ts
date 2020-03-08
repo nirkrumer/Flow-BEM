@@ -3,6 +3,8 @@ import { FlowPage } from './models/FlowPage';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import './ScheduleScreen.css';
+import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 export declare class SchedulesScreen extends FlowPage {
     node: any;
     constructor(props: any);

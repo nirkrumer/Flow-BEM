@@ -128,8 +128,6 @@ export class RunProcess extends FlowPage {
 
     async runProcessexe (processesToRun:any , env:String) {
         if (processesToRun.length > 0){
-            // let username = 'boomi@naturalint.com';
-            // let password = 'b89qPL4b';
             let envToRun:String;
                 if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
                 else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
@@ -204,7 +202,9 @@ export class RunProcess extends FlowPage {
             processes.push(process_element)
         })
     return (
+        
         <div className = "container"> 
+        {/* {React.createElement(manywho.component.getByName('navigation'), { id: manywho.model.getDefaultNavigationId(this.flowKey), flowKey: this.flowKey})} */}
              <div 
             //  className = "Bem-header"
              >
