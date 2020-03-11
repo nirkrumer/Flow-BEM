@@ -283,10 +283,10 @@ render(){
         {
             dataField: 'Is_Enabled',
             text: 'Enabled',
-            sort: false,
+            sort: true,
             editable: false,
-            formatter: ( row: any) => {
-                if(row == 'false')
+            formatter: (cellContent: any, row: any) => {
+                if(cellContent == false)
                 {
                     return (
                         <Switch id="toggle" onChange={this.handleSwitchChange} checked={false}
@@ -295,7 +295,7 @@ render(){
                 }
                 else{
                     return(
-                        <Switch id="toggle" onChange={this.handleSwitchChange} checked={false}
+                        <Switch id="toggle" onChange={this.handleSwitchChange} checked={true}
                         offColor="#000" className="react-switch"/>
                     )
                 }    
@@ -307,7 +307,7 @@ render(){
         {
             dataField: 'Process_Name',
             text: 'Process',
-            sort: false,
+            sort: true,
             editable: false,
             headerStyle: () => {
                 return { width: '300px' };
