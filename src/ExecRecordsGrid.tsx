@@ -10,7 +10,6 @@ import { eLoadingState } from './models/FlowBaseComponent';
 import Switch from "react-switch";
 import Notiflix from "notiflix-react";
 import Select from 'react-select';
-import { borderRadius } from 'react-select/src/theme';
 
 declare const manywho: IManywho;
 

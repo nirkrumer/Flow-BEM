@@ -7,57 +7,62 @@ import { eLoadingState } from './models/FlowBaseComponent';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider,{ CSVExport, Search ,selectRow ,ColumnToggle} from 'react-bootstrap-table2-toolkit';
-import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
-import * as $ from "jquery";
 // import {ModalHeader,ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
 // import { Input} from 'react-bootstrap';
-import Button from '@bit/react-bootstrap.react-bootstrap.button';
-import Modal from '@bit/react-bootstrap.react-bootstrap.modal';
-import ReactBootstrapStyle from "@bit/react-bootstrap.react-bootstrap.internal.style-links";
 import Switch from "react-switch";
 import DatePicker from 'react-datepicker';
+import cellEditFactory from 'react-bootstrap-table2-editor';
 import 'react-datepicker/dist/react-datepicker.css';
 import ​'./ScheduleScreen.css';
-import cellEditFactory from 'react-bootstrap-table2-editor';
+
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
-
+import WeekDaysPicker from './WeekDaysPicker';
 
 declare const manywho: IManywho;
 ​
 export class SchedulesScreen extends FlowPage {
     node: any;
+    schedArrayList:any[]= []
 ​
     constructor(props: any) {
         super(props);
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleSwitchChange = this.handleSwitchChange.bind(this)
+        this.refrshTable = this.refrshTable.bind(this)
+        this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
+        this.selectedRowClass = this.selectedRowClass.bind(this);
+        this.onHourEndChange = this.onHourEndChange.bind(this)
+        this.handleTimeChange = this.handleTimeChange.bind(this);
+        this.initDates = this.initDates.bind(this)
+        this.UpdateSchedule = this.UpdateSchedule.bind(this)
         this.state = {
             Toggleoption : false,
+            checked : false,
             show: false,
-            hour : ""
+            id: 0,
+            hour : "",
+            time: 0,
+            
+            sun: true,
+            mon: true,
+            tue: true,
+            wed: true,
+            thu: true,
+            fri: true,
+            sat: true,
                }
         }   
     async componentDidMount() {
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
-        //    (manywho as any).eventManager.addBeforeSendListener(this.moveHappening, this.componentId);
         this.forceUpdate();
+        this.initDates()
         return Promise.resolve();
-
     }
-    // async componentWillMount(){
-    //     let r = await fetch('api/v_Boomi_Data_Schedules')
-    //     let v_Boomi_Data_Schedules= await r.json()
-    //     this.setState({v_Boomi_Data_Schedules})
-    //   }
-​
-    handleSwitchChange(Toggleoption : boolean){
-        this.setState({ Toggleoption });
-      }
-​
+   
     moveHappened(xhr: XMLHttpRequest, request: any) {
         if ((xhr as any).invokeType === 'FORWARD') {
             // this.forceUpdate();
@@ -65,41 +70,146 @@ export class SchedulesScreen extends FlowPage {
     }
 ​/* --------------------------------------------------------------- */
 
-	handleClose() {
-		this.setState({ show: false });
-	}
-	handleShow() {
-		this.setState({ show: true });
-    }
-    nameChange = (e:any) => {
-        this.setState({name: e.target.value});
-    }
-    onHourEndChange(){
-
-    }
-    saveHandler()  {
-        let response = fetch("/api/Data_Boomi_Schedules/update" ,
-        {
-            method: "POST",
-            body: JSON.stringify(
-                {
-                    "Sched_Id": "12121212ttt",
-                    "Process_Id":"12345",
-                    "Is_Enabled":"Y",
-                    "Days": "1,3",
-                    "Hours": "22",
-                    "Minutes": "12"
-                }),
-            headers : new Headers({
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }),
-            credentials: "same-origin",
-            mode: 'no-cors'
-        })
-        console.log(response)
-      }
+handleSwitchChange(Toggleoption : boolean){
+    this.setState({ Toggleoption });
+  }
 ​
+handleCheckboxClick(Sched_Id: any){
+    let sched_Data:any =  {}
+    sched_Data["Sched_Id"]=Sched_Id
+    this.setState({
+        checked:!this.state.checked
+    });
+    if(this.state.checked)
+    {       
+        if(this.schedArrayList.some(item => item.Sched_Id === Sched_Id))
+        {
+            
+            for(var i = 0; i < this.schedArrayList.length; i++) {
+                if(this.schedArrayList[i].Sched_Id === Sched_Id) {
+                    var index=i
+                    this.schedArrayList.splice(index,1)                    
+                    break;
+                }
+            }
+        }
+        else{
+            this.schedArrayList.push(sched_Data)
+        }
+            this.setState({
+                checked:!this.state.checked        
+            });
+    }
+    console.log(this.schedArrayList)        
+}
+
+refrshTable(){
+    this.triggerOutcome('refresh');
+}
+handleClose() {
+    this.setState({ show: false });
+}
+handleShow() {
+    this.setState({ show: false });
+}
+nameChange = (e:any) => {
+    this.setState({name: e.target.value});
+}
+
+selectedRowClass(row: { id: number; }, isSelect: any) {
+    if (isSelect) {
+        if (row.id >= 3) {
+            return 'bigger-than-three-select-row';
+        } else {
+            return 'less-than-three-select-row';
+        }
+    } else {
+        return '';
+    }
+}
+
+saveHandler(schedArrayList:any,products:any)  {        
+    let sched_Data_To_Update_Array:any = []
+
+    for(var i = 0; i < schedArrayList.length; i++) {
+        for(var j = 0; j < products.length; j++) {
+          if(schedArrayList[i].Sched_Id===products[j].Sched_Id) {    
+           
+            let sched_Data_To_Update:any =  {}
+
+            sched_Data_To_Update["Sched_Id"]=products[j].Sched_Id
+            sched_Data_To_Update["Process_Id"]=products[j].Process_Id
+            sched_Data_To_Update["Process_Name"]=products[j].Process_Name
+            sched_Data_To_Update["Is_Enabled"]=products[j].Is_Enabled
+            sched_Data_To_Update["Days"]=products[j].Days
+            sched_Data_To_Update["Hours"]=products[j].Hours
+            sched_Data_To_Update["Minutes"]=products[j].Minutes                          
+            sched_Data_To_Update_Array.push(sched_Data_To_Update)
+            }
+       }
+    }
+    console.log(sched_Data_To_Update_Array)
+    this.UpdateSchedule(sched_Data_To_Update_Array);
+}
+
+async UpdateSchedule(sched_Data_To_Update_Array:any){
+    this.fields['BEM:Update_Schedules_List'].value = sched_Data_To_Update_Array as FlowObjectDataArray
+    this.updateValues([this.fields['BEM:Update_Schedules_List']]);
+    await this.triggerOutcome('Save');
+    window.location.reload(false);  
+}
+
+onHourEndChange(hour:any){
+  //console.log(new_hour)
+    this.setState({hour})
+    this.forceUpdate();
+    console.log(hour)
+}
+
+handleTimeChange(time: any) {
+    console.log(time);     // <- prints "3600" if "01:00" is picked
+    this.setState({ time });
+}
+
+initDates(){
+    this.setState({time:this.state.Hours})
+    console.log(this.state.Hours)
+}  
+    
+​handleWeekDay(text:String,active:any){
+    //this.forceUpdate();
+    switch (text){
+        case "Sun":
+            this.setState({sun:!this.state.sun})
+            console.log("day= ",text, "is ", this.state.sun);
+            break;
+        case "Mon":
+            this.setState({mon:!this.state.mon})
+            console.log("day= ",text, "is ", this.state.mon);
+            break;
+        case "Tue":
+            this.setState({tue:!this.state.tue})
+            console.log("day= ",text, "is ", this.state.tue);
+            break;
+        case "Wed":
+            this.setState({wed:!this.state.wed})
+            console.log("day= ",text, "is ", this.state.wed);
+            break;
+        case "Thu":
+            this.setState({thu:!this.state.thu})
+            console.log("day= ",text, "is ", this.state.thu);
+            break;
+        case "Fri":
+            this.setState({fri:!this.state.fri})
+            console.log("day= ",text, "is ", this.state.fri);
+            break;
+        case "Sat":
+            this.setState({sat:!this.state.sat})
+            console.log("day= ",text, "is ", this.state.sat);
+            break;
+        
+    }
+}
 render(){
     const products: any = [];
     let product_element: any = {};
@@ -113,6 +223,9 @@ render(){
         product_element = {}
         Object.keys(item.properties).forEach((key: string) => {
             switch (key) {
+                case "Sched_Id":
+                    product_element["Sched_Id"] = item.properties[key].value;
+                    break;
                 case "Process_Name":
                     product_element["Process_Name"] = item.properties[key].value;
                     break;
@@ -133,96 +246,97 @@ render(){
         products.push(product_element)
     });
     }
+    const defaultSorted = [{
+        dataField: 'Process_Name',
+        order: 'asc'
+    }];
     const columns = [
+        {
+            dataField: 'checkbox',
+            isDummyField: false,
+            text: '',
+            editable: false,
+            formatter: (row: any) => {
+                return (
+                    <div className="custom-control custom-checkbox">
+                      <CheckBoxComponent     
+                            checked={this.state.checked}
+                            onChange={()=>this.handleCheckboxClick(row.Sched_Id)}
+                            cssClass="e-success"
+                        />
+                </div>              
+                );
+            },
+        },
         {
             dataField: 'Is_Enabled',
             text: 'Enabled',
-            sort: true,
+            sort: false,
             editable: false,
             formatter: ( row: any) => {
-                // if(row == 'true')
-                // {
-                //     return (
-                //         <Switch id="toggle" onChange={this.handleSwitchChange} checked={true}
-                //          offColor="#000" className="react-switch"/>
-                //     )
-                // }
-                // else{
-                //     return(
-                //         <Switch id="toggle" onChange={this.handleSwitchChange} checked={false}
-                //         offColor="#000" className="react-switch"/>
-                //     )
-                // }
-                return(
-                    <Switch id="toggle" onChange={this.handleSwitchChange} checked={this.state.Toggleoption} 
-                       offColor="#000" className="react-switch"/>  
-                )
+                if(row == 'false')
+                {
+                    return (
+                        <Switch id="toggle" onChange={this.handleSwitchChange} checked={false}
+                         offColor="#000" className="react-switch"/>
+                    )
+                }
+                else{
+                    return(
+                        <Switch id="toggle" onChange={this.handleSwitchChange} checked={false}
+                        offColor="#000" className="react-switch"/>
+                    )
+                }    
             },
-            headerStyle: (column: any, colIndex: any) => {
+            headerStyle: () => {
                 return { width: '90px' };
             }
         },
         {
             dataField: 'Process_Name',
             text: 'Process',
-            sort: true,
-            editable: false
+            sort: false,
+            editable: false,
+            headerStyle: () => {
+                return { width: '300px' };
+            }
         },
         {
             dataField: 'Days',
             text: 'Days',
-            sort: true,
         },
         {
             dataField: 'Days2',
             text: 'Days2',
-            sort: true,
             editable: false,
-            formatter: () => {
+            formatter: (row: any) => {
                 return (        
                     <div>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Sun
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Mon
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Tue
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Wed
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Thu
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Fri
-                        </label>
-                        <label className = 'days'>
-                        <CheckBoxComponent></CheckBoxComponent> Sat
-                        </label>
+                        <WeekDaysPicker text = "Sun" active = {false} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun)}/>
+                        <WeekDaysPicker text = "Mon" active = {false} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon)}/>
+                        <WeekDaysPicker text = "Tue" active = {false} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue)}/>
+                        <WeekDaysPicker text = "Wed" active = {false} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed)}/>
+                        <WeekDaysPicker text = "Thu" active = {false} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu)}/>
+                        <WeekDaysPicker text = "Fri" active = {false} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri)}/>
+                        <WeekDaysPicker text = "Sat" active = {false} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat)}/>
                     </div>
                 )
             },
-            headerStyle: (column: any, colIndex: any) => {
+            headerStyle: () => {
                 return { width: '450px' };
             }
         },
         {
             dataField: 'Hours',
-            text: 'Hours',
-            sort: true
+            text: 'Hours'
         },
         {
             dataField: 'Minutes',
-            text: 'Minutes',
-            sort: true
+            text: 'Minutes'
         },
         {
             dataField: 'Hour',
             text: 'Hour',
-            sort: true,
             editable: false,
             formatter: () => {
                 return (        
@@ -252,7 +366,7 @@ render(){
             };
             const selectRow = {
                 mode: 'checkbox',
-                clickToSelect: true,
+                clickToSelect: false,
                 onSelect: (row: { id: any; }, isSelect: any, rowIndex: any, e: any) => {
                   console.log(row.id);
                   console.log(isSelect);
@@ -264,66 +378,27 @@ render(){
                   console.log(rows);
                   console.log(e);
                 }
-              };
+          };
 
     return(
     <div className = "container">
         <div className = "Bem-header">
             <h2> Process Schedule </h2>
         </div> 
-        {/* <WeekdayPicker /> */}
         <div className = 'Bem-row'>
-            <div className = "col-sm-1">
-            {/* <ReactBootstrapStyle />  */}
-            {/* <Button variant="primary" onClick={this.handleShow}>
-                        Add
-                    </Button>
-                            <Modal show={this.state.show} onHide={this.handleClose}>
-                                <Modal.Header closeButton>
-                                <Modal.Title>Add Schedule</Modal.Title>
-                                </Modal.Header>
-                                <button className="btn btn-primary">test</button>
-                                <Modal.Body>Woohoo, you're reading this text in a modal!</Modal.Body>
-                                <Modal.Footer>
-                                    <Button variant="secondary" onClick={this.handleClose}>
-                                        Close
-                                    </Button>
-                                    <Button variant="primary" onClick={this.handleClose}>
-                                        Save Changes
-                                    </Button>
-                                </Modal.Footer>
-                            </Modal>
-                   */}
-            </div>
-            <div className = "col-sm-6">
-                <button className = "btn btn-success"
-                onClick={this.saveHandler}>Save</button>
-            </div>
-            {/* <div>
-                <button className="btn btn-default" onClick={ this.handleGetSelectedData }>Get Current Selected Rows</button>
-            </div> */}
+            <button className = "btn btn-primary" onClick={()=>this.saveHandler(this.schedArrayList,products)}>Save</button>
         </div>
     ​        <BootstrapTable
-                // ref={ (n: any) => this.node = n }
-                keyField="Id"
+                keyField="id"
                 data={products}
                 columns={columns}
-                //selectRow={selectRow}
-                cellEdit={ cellEditFactory({mode: 'click',
-                blurToSave: true,
-                nonEditableRows: () => [0, 6],
+                cellEdit={ cellEditFactory({mode: 'click'
+                //blurToSave: true,
             }) }
             />
         </div>
              )
         }
-}
-interface ISchedulesProps{
-​
-}
-interface ISchedulesState{
-    v_Boomi_Data_Schedules:Array<{Process_Id: any}>
-
 }
 ​
 manywho.component.register('SchedulesScreen', SchedulesScreen);

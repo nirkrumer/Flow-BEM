@@ -1,0 +1,20 @@
+.sched_days{
+    display:inline-block;
+    margin-right:15px;
+}
+
+.weekday{
+    padding: 10px;
+    border-radius: 25px;
+}
+
+.weekday-active{
+    background-color: #2196F3;
+    color: white
+}
+
+.weekday-not-active{
+    background-color: silver;
+    color: black;
+}
+

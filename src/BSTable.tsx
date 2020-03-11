@@ -7,7 +7,6 @@ import filterFactory from 'react-bootstrap-table2-filter';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 
-
 declare const manywho: IManywho;
 
 export class BSTable extends React.Component<any, any> {
