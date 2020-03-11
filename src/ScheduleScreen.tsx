@@ -19,6 +19,7 @@ import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 import WeekDaysPicker from './WeekDaysPicker';
+import Notiflix from "notiflix-react";
 
 declare const manywho: IManywho;
 ​
@@ -38,6 +39,7 @@ export class SchedulesScreen extends FlowPage {
         this.handleTimeChange = this.handleTimeChange.bind(this);
         this.initDates = this.initDates.bind(this)
         this.UpdateSchedule = this.UpdateSchedule.bind(this)
+        this.SelecthandleChange = this.SelecthandleChange.bind(this)
         this.state = {
             Toggleoption : false,
             checked : false,
@@ -45,6 +47,7 @@ export class SchedulesScreen extends FlowPage {
             id: 0,
             hour : "",
             time: 0,
+            selectedOption: [],
             
             sun: true,
             mon: true,
@@ -83,8 +86,7 @@ handleCheckboxClick(Sched_Id: any){
     if(this.state.checked)
     {       
         if(this.schedArrayList.some(item => item.Sched_Id === Sched_Id))
-        {
-            
+        {         
             for(var i = 0; i < this.schedArrayList.length; i++) {
                 if(this.schedArrayList[i].Sched_Id === Sched_Id) {
                     var index=i
@@ -130,26 +132,30 @@ selectedRowClass(row: { id: number; }, isSelect: any) {
 
 saveHandler(schedArrayList:any,products:any)  {        
     let sched_Data_To_Update_Array:any = []
-
-    for(var i = 0; i < schedArrayList.length; i++) {
-        for(var j = 0; j < products.length; j++) {
-          if(schedArrayList[i].Sched_Id===products[j].Sched_Id) {    
-           
-            let sched_Data_To_Update:any =  {}
-
-            sched_Data_To_Update["Sched_Id"]=products[j].Sched_Id
-            sched_Data_To_Update["Process_Id"]=products[j].Process_Id
-            sched_Data_To_Update["Process_Name"]=products[j].Process_Name
-            sched_Data_To_Update["Is_Enabled"]=products[j].Is_Enabled
-            sched_Data_To_Update["Days"]=products[j].Days
-            sched_Data_To_Update["Hours"]=products[j].Hours
-            sched_Data_To_Update["Minutes"]=products[j].Minutes                          
-            sched_Data_To_Update_Array.push(sched_Data_To_Update)
-            }
-       }
+    if (schedArrayList.length == 0){
+        Notiflix.Report.Failure('Schedule Save Validation','No process was chosen','Click');
     }
+    else{
+        for(var i = 0; i < schedArrayList.length; i++) {
+            for(var j = 0; j < products.length; j++) {
+              if(schedArrayList[i].Sched_Id===products[j].Sched_Id) {    
+               
+                let sched_Data_To_Update:any =  {}
+    
+                sched_Data_To_Update["Sched_Id"]=products[j].Sched_Id
+                sched_Data_To_Update["Process_Id"]=products[j].Process_Id
+                sched_Data_To_Update["Process_Name"]=products[j].Process_Name
+                sched_Data_To_Update["Is_Enabled"]=products[j].Is_Enabled
+                sched_Data_To_Update["Days"]=products[j].Days
+                sched_Data_To_Update["Hours"]=products[j].Hours
+                sched_Data_To_Update["Minutes"]=products[j].Minutes                          
+                sched_Data_To_Update_Array.push(sched_Data_To_Update)
+                }
+           }
+        }  
     console.log(sched_Data_To_Update_Array)
     this.UpdateSchedule(sched_Data_To_Update_Array);
+    }
 }
 
 async UpdateSchedule(sched_Data_To_Update_Array:any){
@@ -210,7 +216,13 @@ initDates(){
         
     }
 }
+SelecthandleChange (selectedOption : any) {   
+    this.forceUpdate();
+    this.setState({selectedOption}); 
+}
+
 render(){
+    const processes : any = ["1"] ;
     const products: any = [];
     let product_element: any = {};
         if (this.loadingState !== eLoadingState.ready) {
@@ -256,7 +268,7 @@ render(){
             isDummyField: false,
             text: '',
             editable: false,
-            formatter: (row: any) => {
+            formatter: (cellContent:any,row: any) => {
                 return (
                     <div className="custom-control custom-checkbox">
                       <CheckBoxComponent     
@@ -309,16 +321,35 @@ render(){
             dataField: 'Days2',
             text: 'Days2',
             editable: false,
-            formatter: (row: any) => {
+            formatter: (cellContent: any,row: any) => {
+                //let daysBoolArray : boolean [] = [false,false,false,false,false,false,false] ;
+
+                let sun_bool : boolean = row.Days.includes('1') ? true: false;
+                let mon_bool : boolean = row.Days.includes('2') ? true: false;
+                let tue_bool : boolean = row.Days.includes('3') ? true: false;
+                let wed_bool : boolean = row.Days.includes('4') ? true: false;
+                let thu_bool : boolean = row.Days.includes('5') ? true: false;
+                let fri_bool : boolean = row.Days.includes('6') ? true: false;
+                let sat_bool : boolean = row.Days.includes('7') ? true: false;
+                // if (row.Days == '*'){
+                //     sun_bool = true;
+                //     mon_bool = true;
+                //     tue_bool = true;
+                //     wed_bool = true;
+                //     sun_bool = true;
+                //     sun_bool = true;
+                //     sun_bool = true;
+                // }
+                
                 return (        
                     <div>
-                        <WeekDaysPicker text = "Sun" active = {false} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun)}/>
-                        <WeekDaysPicker text = "Mon" active = {false} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon)}/>
-                        <WeekDaysPicker text = "Tue" active = {false} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue)}/>
-                        <WeekDaysPicker text = "Wed" active = {false} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed)}/>
-                        <WeekDaysPicker text = "Thu" active = {false} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu)}/>
-                        <WeekDaysPicker text = "Fri" active = {false} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri)}/>
-                        <WeekDaysPicker text = "Sat" active = {false} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat)}/>
+                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun)}/>
+                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon)}/>
+                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue)}/>
+                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed)}/>
+                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu)}/>
+                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri)}/>
+                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat)}/>
                     </div>
                 )
             },
@@ -344,7 +375,27 @@ render(){
             selected = {this.state.hour}
                             timeIntervals={30} onChange={ this.onHourEndChange } />
                 )}
-        }
+        },
+        // {
+        //     dataField: 'Hour2',
+        //     text: 'Hour2',
+        //     editable: false,
+        //     formatter: () => {
+        //         return (    
+        //             <Select
+        //             name="colors"
+        //             options={[{value:"1",label:"1"}, {value:"2",label:"2"}]}
+        //             className="basic-multi-select"
+        //             //placeholder='Choose Process...'
+        //             classNamePrefix="Select"
+        //             closeMenuOnSelect={false}
+        //             onChange={this.SelecthandleChange} value={this.state.selectedOption}
+        //         />
+        //     )},
+        //     headerStyle: () => {
+        //         return { width: '50px' };
+        //     }
+        // }
         ]
             const MySearch = (props: any) => {
                 let input: any;

@@ -26,6 +26,7 @@ export declare class SchedulesScreen extends FlowPage {
     handleTimeChange(time: any): void;
     initDates(): void;
     handleWeekDay(text: String, active: any): void;
+    SelecthandleChange(selectedOption: any): void;
     render(): JSX.Element;
 }
 export default SchedulesScreen;
