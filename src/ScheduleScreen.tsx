@@ -182,39 +182,99 @@ initDates(){
     console.log(this.state.Hours)
 }  
     
-​handleWeekDay(text:String,active:any){
+​handleWeekDay(text:String,active:any,row:any,products:any){
     //this.forceUpdate();
+    let days=row.Days
+
+    for(var j = 0; j < products.length; j++) {
+        if(products[j].Sched_Id==row.Sched_Id)
+    {
+//     console.log("products Before:",products[j].Days)
+//     if(products[j].Days.length<='2' && active=='false') 
+//     {
+
+//     }
+//    // console.log("rowindex:",days.rowIndex)
     switch (text){
         case "Sun":
+            console.log("Before: ",days)
+            if(active){
+                  days=days+ ",1";
+                 
+            }
+            else{
+                 days=days.replace(",1","");
+            }
             this.setState({sun:!this.state.sun})
             console.log("day= ",text, "is ", this.state.sun);
             break;
         case "Mon":
+            if(active){
+                days=days+ ",2";
+          }
+          else{
+               days=days.replace(",2","");
+          }
             this.setState({mon:!this.state.mon})
             console.log("day= ",text, "is ", this.state.mon);
             break;
         case "Tue":
+            if(active){
+                days=days+ ",3";
+          }
+          else{
+               days=days.replace(",3","");
+          }
             this.setState({tue:!this.state.tue})
             console.log("day= ",text, "is ", this.state.tue);
             break;
         case "Wed":
+            if(active){
+                days=days+ ",4";          
+            }
+          else{
+               days=days.replace(",4","");
+          }
             this.setState({wed:!this.state.wed})
             console.log("day= ",text, "is ", this.state.wed);
             break;
         case "Thu":
+            if(active){
+                days=days+ ",5";
+          }
+          else{
+               days=days.replace(",5","");
+          }
             this.setState({thu:!this.state.thu})
             console.log("day= ",text, "is ", this.state.thu);
             break;
         case "Fri":
+            if(active){
+                days=days+ ",6";
+          }
+          else{
+               days=days.replace(",6","");
+          }
             this.setState({fri:!this.state.fri})
             console.log("day= ",text, "is ", this.state.fri);
             break;
-        case "Sat":
+            case "Sat":
+            if(active){
+                days=days+ ",7";
+          }
+          else{
+               days=days.replace(",7","");
+          }
             this.setState({sat:!this.state.sat})
             console.log("day= ",text, "is ", this.state.sat);
             break;
-        
-    }
+          }
+          products[j].Days=days;
+          console.log("After :",products[j].Days)
+         }
+        }
+        //console.log("products :",this.setState({products:days}))
+        //console.log("After :",days)
 }
 SelecthandleChange (selectedOption : any) {   
     this.forceUpdate();
@@ -343,13 +403,13 @@ render(){
                 
                 return (        
                     <div>
-                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun)}/>
-                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon)}/>
-                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue)}/>
-                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed)}/>
-                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu)}/>
-                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri)}/>
-                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat)}/>
+                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun,row,products)}/>
+                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon,row,products)}/>
+                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue,row,products)}/>
+                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed,row,products)}/>
+                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu,row,products)}/>
+                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri,row,products)}/>
+                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat,row,products)}/>
                     </div>
                 )
             },

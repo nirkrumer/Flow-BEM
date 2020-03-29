@@ -1,2 +1,10 @@
 node_modules
 navbar
+build/bem-exec.css
+build/bem-exec.js
+src/ScheduleScreenAllen.tsx
+build/bem-exec.js
+build/index.d.ts
+build/ScheduleScreen.d.ts
+build/ScheduleScreenAllen.d.ts
+src/index.tsx
