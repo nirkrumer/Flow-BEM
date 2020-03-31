@@ -285,7 +285,7 @@ render(){
             text: 'Enabled',
             sort: true,
             editable: false,
-            formatter: (cellContent: any, row: any) => {
+            formatter: (cellContent: any) => {
                 if(cellContent == false)
                 {
                     return (
@@ -366,8 +366,8 @@ render(){
             text: 'Minutes'
         },
         {
-            dataField: 'Hour',
-            text: 'Hour',
+            dataField: 'HourDP',
+            text: 'HourDP',
             editable: false,
             formatter: () => {
                 return (        
@@ -443,8 +443,17 @@ render(){
                 keyField="id"
                 data={products}
                 columns={columns}
-                cellEdit={ cellEditFactory({mode: 'click'
+                cellEdit={ cellEditFactory({mode: 'click',
                 //blurToSave: true,
+                afterSaveCell: (oldValue: any, newValue: any, row:any, column: any) => {
+                    if(column.dataField == 'Hours') {
+                        row.Hours = newValue;
+                    }
+                    else{
+                        row.Minutes = newValue;
+                    }
+                    
+                } 
             }) }
             />
         </div>

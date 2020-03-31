@@ -18,6 +18,7 @@ export class ExecRecordsGrid extends FlowPage {
     timerId : any ;
     listmode:String = 'Prod' ;
     ismoderev:boolean = true ;
+//    tableProcList: FlowObjectDataArray ;
     
     constructor(props: any) {
         super(props);
@@ -171,6 +172,7 @@ export class ExecRecordsGrid extends FlowPage {
         }
         else {
             Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
+         //   this.tableProcList = this.fields["BEM:List:AllProcesses"].value as FlowObjectDataArray;
             const api_request: FlowObjectDataArray = this.fields["BEM:List:Exec_API_Request"].value as FlowObjectDataArray;
             api_request.items.forEach((item: FlowObjectData) => {
                 product_element = {};

@@ -162,6 +162,78 @@ export class RunProcess extends FlowPage {
             Notiflix.Report.Failure('Execution Validation','No process was chosen','Click');
         }
     }
+
+    runSlackApproveMsg(processesToRun:any , env:String) {
+        if (processesToRun.length > 0){
+            let envToRun:String;
+                if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
+                else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
+        const processArray = processesToRun.map(((process :any) => {
+        fetch("https://slack.com/api/chat.postMessage",
+        { 
+            method: "POST", 
+            body: JSON.stringify(
+                {
+                    "text" : "Approve to run process",
+                    "channel" : "test_boomi_z_api_tests",
+                    "attachments": [
+                        {
+                            "text" : process.label,
+                            "callback_id": "wopr_game",
+                            "color": "#3AA3E3",
+                            "attachment_type": "default",
+                            "actions": [
+                                // {
+                                //     "name": "game",
+                                //     "text": "YES :)",
+                                //     "type": "button",
+                                //     "value": "true"
+                                // },
+                                // {
+                                //     "name": "game",
+                                //     "text": "NO /: ",
+                                //     "type": "button",
+                                //     "value": "false",
+                                //     "confirm": {
+                                //         "title": "Are you sure?"  ,
+                                //         "text": process.label + " won't run",
+                                //         "ok_text": "Yes, Delete ALL",
+                                //         "dismiss_text": "No"
+                                //     }
+                                // },
+                                {
+                                    "name": "game",
+                                    "text": "RUN Process",
+                                    "type": "button",
+                                    "value": "run",
+                                    "style": "primary",
+                                    "confirm": {
+                                        "title": "Are you sure?"  ,
+                                        "text": process.label + " will run",
+                                        "ok_text": "Yes",
+                                        "dismiss_text": "No"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }  
+                ),
+            headers : new Headers({
+                "Accept": "application/json",                
+                "Content-Type": "application/json",
+                "Authorization" : "Bearer xoxb-6691075056-655433680209-0r1RixoKgJypAYnoznXRmvlC"
+            }),
+            // credentials: "same-origin",
+            //mode: 'no-cors'
+        })
+    }));
+        Notiflix.Notify.Success(processesToRun.length + ' apporval msgs were sent to SLACK!');
+    }
+    else{
+        Notiflix.Report.Failure('Execution Validation','No process was chosen','Click');
+    }
+}
 /* ********************************************************************************** */    
     
     render() {
@@ -264,7 +336,8 @@ export class RunProcess extends FlowPage {
                        <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
                     </div>
                     <div className = "Bem-row Bem-btn">       
-                        <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
+                        <button id = "runProcess" onClick = {() => this.runSlackApproveMsg(this.state.selectedOption,this.state.envOption)}
+                        //this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
                         type="button" className = "btn btn-primary run-btn" 
                         style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
                         > Run </button>

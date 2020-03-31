@@ -24,6 +24,7 @@ export declare class RunProcess extends FlowPage {
     handleBillingClick(): void;
     handleEnvChange(envOption: any): void;
     runProcessexe(processesToRun: any, env: String): Promise<void>;
+    runSlackApproveMsg(processesToRun: any, env: String): void;
     render(): JSX.Element;
 }
 export default RunProcess;

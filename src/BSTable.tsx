@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FlowPage } from './models/FlowPage';
+// import { FlowPage } from './models/FlowPage';
 import { IManywho } from './models/interfaces';
 import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider,{ CSVExport, Search ,selectRow ,ColumnToggle} from 'react-bootstrap-table2-toolkit';

@@ -19,8 +19,3 @@
 .e-checkbox-wrapper.e-success:hover .e-frame.e-check { 
     background-color: #229CDE;
 } 
-
-.sched_days{
-    display:inline-block;
-    margin-right:20px;
-}
