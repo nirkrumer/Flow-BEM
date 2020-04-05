@@ -19,6 +19,7 @@ import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 import WeekDaysPicker from './WeekDaysPicker';
+import HourComp from './HourComp';
 import Notiflix from "notiflix-react";
 
 declare const manywho: IManywho;
@@ -34,10 +35,8 @@ export class SchedulesScreen extends FlowPage {
         this.handleSwitchChange = this.handleSwitchChange.bind(this)
         this.refrshTable = this.refrshTable.bind(this)
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
-        this.selectedRowClass = this.selectedRowClass.bind(this);
         this.onHourEndChange = this.onHourEndChange.bind(this)
-        this.handleTimeChange = this.handleTimeChange.bind(this);
-        this.initDates = this.initDates.bind(this)
+
         this.UpdateSchedule = this.UpdateSchedule.bind(this)
         this.SelecthandleChange = this.SelecthandleChange.bind(this)
         this.state = {
@@ -45,7 +44,7 @@ export class SchedulesScreen extends FlowPage {
             checked : false,
             show: false,
             id: 0,
-            hour : "",
+            hour : null,
             time: 0,
             selectedOption: [],
             
@@ -62,7 +61,6 @@ export class SchedulesScreen extends FlowPage {
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
         this.forceUpdate();
-        this.initDates()
         return Promise.resolve();
     }
    
@@ -75,6 +73,7 @@ export class SchedulesScreen extends FlowPage {
 
 handleSwitchChange(Toggleoption : boolean){
     this.setState({ Toggleoption });
+    console.log ("toggel = " + this.state.Toggleoption)
   }
 ​
 handleCheckboxClick(Sched_Id: any){
@@ -118,18 +117,6 @@ nameChange = (e:any) => {
     this.setState({name: e.target.value});
 }
 
-selectedRowClass(row: { id: number; }, isSelect: any) {
-    if (isSelect) {
-        if (row.id >= 3) {
-            return 'bigger-than-three-select-row';
-        } else {
-            return 'less-than-three-select-row';
-        }
-    } else {
-        return '';
-    }
-}
-
 saveHandler(schedArrayList:any,products:any)  {        
     let sched_Data_To_Update_Array:any = []
     if (schedArrayList.length == 0){
@@ -166,25 +153,26 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
 }
 
 onHourEndChange(hour:any){
-  //console.log(new_hour)
     this.setState({hour})
     this.forceUpdate();
-    console.log(hour)
+    console.log(hour + "and the type is: " + typeof(hour))
+    console.log("state = " + this.state.hour)
 }
 
-handleTimeChange(time: any) {
-    console.log(time);     // <- prints "3600" if "01:00" is picked
-    this.setState({ time });
-}
 
 initDates(){
     this.setState({time:this.state.Hours})
     console.log(this.state.Hours)
 }  
-    
+noDays (row : any){
+    // if((row.days.length<2) && (!active)) { return true;} 
+    //     else {return false;}
+}    
 ​handleWeekDay(text:String,active:any,row:any,products:any){
-    //this.forceUpdate();
-    let days=row.Days
+    this.forceUpdate();
+    let days = row.Days
+    console.log ("active = " + active)
+    
 
     for(var j = 0; j < products.length; j++) {
         if(products[j].Sched_Id==row.Sched_Id)
@@ -195,6 +183,7 @@ initDates(){
 
 //     }
 //    // console.log("rowindex:",days.rowIndex)
+   
     switch (text){
         case "Sun":
             console.log("Before: ",days)
@@ -287,6 +276,7 @@ render(){
     let product_element: any = {};
         if (this.loadingState !== eLoadingState.ready) {
         return (<div></div>);
+
     }
     else {
         const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
@@ -403,13 +393,13 @@ render(){
                 
                 return (        
                     <div>
-                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",this.state.sun,row,products)}/>
-                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",this.state.mon,row,products)}/>
-                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",this.state.tue,row,products)}/>
-                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",this.state.wed,row,products)}/>
-                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",this.state.thu,row,products)}/>
-                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",this.state.fri,row,products)}/>
-                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",this.state.sat,row,products)}/>
+                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",sun_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",mon_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",tue_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",wed_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",thu_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",fri_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",sat_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
                     </div>
                 )
             },
@@ -431,31 +421,23 @@ render(){
             editable: false,
             formatter: () => {
                 return (        
-            <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.state.hour}
-            selected = {this.state.hour}
-                            timeIntervals={30} onChange={ this.onHourEndChange } />
+                    <HourComp onHourEndChange = {this.onHourEndChange} hour = {this.state.hour}/> 
+            // <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.state.hour}
+            // selected = {this.state.hour}
+            //                 timeIntervals={30} onChange={ this.onHourEndChange } />
                 )}
         },
-        // {
-        //     dataField: 'Hour2',
-        //     text: 'Hour2',
-        //     editable: false,
-        //     formatter: () => {
-        //         return (    
-        //             <Select
-        //             name="colors"
-        //             options={[{value:"1",label:"1"}, {value:"2",label:"2"}]}
-        //             className="basic-multi-select"
-        //             //placeholder='Choose Process...'
-        //             classNamePrefix="Select"
-        //             closeMenuOnSelect={false}
-        //             onChange={this.SelecthandleChange} value={this.state.selectedOption}
-        //         />
-        //     )},
-        //     headerStyle: () => {
-        //         return { width: '50px' };
-        //     }
-        // }
+        {
+            dataField: 'Hour2',
+            text: 'Hour2',
+            editable: false,
+            formatter: () => {
+                return (    
+                <h6>
+                    {/* {this.state.hour} */}
+                    </h6>
+            )},
+        }
         ]
             const MySearch = (props: any) => {
                 let input: any;
@@ -475,21 +457,6 @@ render(){
                     </div>
                 );
             };
-            const selectRow = {
-                mode: 'checkbox',
-                clickToSelect: false,
-                onSelect: (row: { id: any; }, isSelect: any, rowIndex: any, e: any) => {
-                  console.log(row.id);
-                  console.log(isSelect);
-                  console.log(rowIndex);
-                  console.log(e);
-                },
-                onSelectAll: (isSelect: any, rows: any, e: any) => {
-                  console.log(isSelect);
-                  console.log(rows);
-                  console.log(e);
-                }
-          };
 
     return(
     <div className = "container">

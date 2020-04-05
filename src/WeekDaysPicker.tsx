@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './Weekdaypicker.css';
+import Notiflix from "notiflix-react";
 
 
 export default class WeekDaysPicker extends React.Component<any, any> {
@@ -12,9 +13,15 @@ export default class WeekDaysPicker extends React.Component<any, any> {
         };
     }
     toggleClass() {
-        this.setState({ WDactive: !this.state.WDactive});
-        this.props.handleWD_Change(this.props.text,!this.state.WDactive) ;
-        console.log(this.props.text,!this.state.WDactive)
+        let possible = this.props.noDays();
+        if (possible){
+            this.setState({ WDactive: !this.state.WDactive});
+            this.props.handleWD_Change(this.props.text,!this.state.WDactive) ;
+            console.log(this.props.text,!this.state.WDactive)
+        }
+        else{
+            Notiflix.Report.Failure('Scheduler Validation','The process schedule must have at least one active day','Click');
+        }
     };
 
     render() {

@@ -183,24 +183,6 @@ export class RunProcess extends FlowPage {
                             "color": "#3AA3E3",
                             "attachment_type": "default",
                             "actions": [
-                                // {
-                                //     "name": "game",
-                                //     "text": "YES :)",
-                                //     "type": "button",
-                                //     "value": "true"
-                                // },
-                                // {
-                                //     "name": "game",
-                                //     "text": "NO /: ",
-                                //     "type": "button",
-                                //     "value": "false",
-                                //     "confirm": {
-                                //         "title": "Are you sure?"  ,
-                                //         "text": process.label + " won't run",
-                                //         "ok_text": "Yes, Delete ALL",
-                                //         "dismiss_text": "No"
-                                //     }
-                                // },
                                 {
                                     "name": "game",
                                     "text": "RUN Process",
@@ -336,8 +318,8 @@ export class RunProcess extends FlowPage {
                        <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
                     </div>
                     <div className = "Bem-row Bem-btn">       
-                        <button id = "runProcess" onClick = {() => this.runSlackApproveMsg(this.state.selectedOption,this.state.envOption)}
-                        //this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
+                        <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
+                        //this.runSlackApproveMsg(this.state.selectedOption,this.state.envOption)}
                         type="button" className = "btn btn-primary run-btn" 
                         style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
                         > Run </button>

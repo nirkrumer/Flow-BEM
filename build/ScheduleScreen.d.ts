@@ -17,14 +17,11 @@ export declare class SchedulesScreen extends FlowPage {
     handleClose(): void;
     handleShow(): void;
     nameChange: (e: any) => void;
-    selectedRowClass(row: {
-        id: number;
-    }, isSelect: any): "" | "bigger-than-three-select-row" | "less-than-three-select-row";
     saveHandler(schedArrayList: any, products: any): void;
     UpdateSchedule(sched_Data_To_Update_Array: any): Promise<void>;
     onHourEndChange(hour: any): void;
-    handleTimeChange(time: any): void;
     initDates(): void;
+    noDays(row: any): void;
     handleWeekDay(text: String, active: any, row: any, products: any): void;
     SelecthandleChange(selectedOption: any): void;
     render(): JSX.Element;
