@@ -1,22 +1,36 @@
 import * as React from 'react';
 import DatePicker from 'react-datepicker';
+var parseISO = require('date-fns/parseISO')
 
-export default class WeekDaysPicker extends React.Component<any, any> {
 
+
+export default class HourComp extends React.Component<any, any> {
+    
     constructor(props: any) {
         super(props);
-        //this.toggleClass = this.toggleClass.bind(this)
+        this.onChange = this.onChange.bind(this)
         this.state = {
-            hour: this.props.hour,
+            value: this.props.hourA,
         };
     }
-    onChange(){
-        this.props.onHourEndChange(this.state.hour) ;
+    hourValue : String = '' ;
+
+    onChange(hourHC:any){
+        this.setState({hourHC})
+        const hourSTR = hourHC.toTimeString().substring(0,5);
+        this.props.onHourEndChange(hourSTR) ;
     }
+   
     render(){
+        if (this.state.hourHC != undefined){
+            this.hourValue = this.state.hourHC.toTimeString().substring(0,5);
+        }
+        else {
+            this.hourValue = this.props.hourA ;
+        }
         return(
-            <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.state.hour}
-            selected = {this.state.hour}
+            <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.hourValue}
+            selected = {this.state.hourHC} 
                             timeIntervals={30} onChange={ this.onChange } /> 
         )
     }
