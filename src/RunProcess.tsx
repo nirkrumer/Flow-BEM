@@ -18,7 +18,7 @@ import Notiflix from "notiflix-react";
 declare const manywho: IManywho;
 
 export class RunProcess extends FlowPage {
-
+// @ts-check
     listmode:String = 'Revenue' ;
     ismoderev:boolean = true ;
     chosenProcesses: String[] = [];

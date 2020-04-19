@@ -12,28 +12,30 @@ import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 import Notiflix from "notiflix-react";
 
 declare const manywho: IManywho;
-
+// @ts-check
 export class MP extends FlowPage {
 
-    listmode:String = 'Revenue' ;
+    listmode:String = 'Budget' ;
     ismoderev:boolean = true ;
-    chosenProcesses: String[] = [];
     
     constructor(props: any) {
         super(props);        
-        this.onRunTypeRevChanged = this.onRunTypeRevChanged.bind(this) ;
-        this.onRunTypeSidChanged = this.onRunTypeSidChanged.bind(this) ;
-        this.onRunTypeFetchChanged = this.onRunTypeFetchChanged.bind(this) ;
+        this.onRunTypeBudget = this.onRunTypeBudget.bind(this) ;
+        this.onRunTypeAdjustment = this.onRunTypeAdjustment.bind(this) ;
+        this.onRunTypeMapping = this.onRunTypeMapping.bind(this) ;
+        this.onRunTypeTargets = this.onRunTypeTargets.bind(this) ;
         this.handleEnvChange = this.handleEnvChange.bind(this)
-        this.state = {
-            selectedOption: [] ,
-            startDate : new Date(),
-            endDate : new Date(),
-            isHidden: true,
-            checked : false,
-            billingChecked : false,
-            envOption : true
-        };
+        this.runProcessexe = this.runProcessexe.bind(this);
+
+        // this.state = {
+        //     selectedOption: [] ,
+        //     startDate : new Date(),
+        //     endDate : new Date(),
+        //     isHidden: true,
+        //     checked : false,
+        //     billingChecked : false,
+        //     envOption : true
+        // };
     }
 
 /* **************************************************************************************** */
@@ -41,7 +43,7 @@ export class MP extends FlowPage {
     async componentDidMount(){  
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
-        this.onRunTypeRevChanged(undefined); 
+        this.onRunTypeBudget(undefined); 
         this.forceUpdate();
         return Promise.resolve();
     }
@@ -53,18 +55,23 @@ export class MP extends FlowPage {
     }
 
 /* ************************************************************************************ */
-    onRunTypeRevChanged(e : any) {
-        this.listmode = 'Revenue' ;
+    onRunTypeBudget(e : any) {
+        this.listmode = 'Budget' ;
         this.ismoderev = true;
         this.forceUpdate();
       }    
-    onRunTypeSidChanged(e : any) {
-        this.listmode = 'Subid';
+    onRunTypeAdjustment(e : any) {
+        this.listmode = 'Adjustments';
         this.ismoderev = false;
         this.forceUpdate();
       }
-    onRunTypeFetchChanged(e : any) {
-        this.listmode = 'Fetch';
+    onRunTypeMapping(e : any) {
+        this.listmode = 'Mapping';
+        this.ismoderev = false;
+        this.forceUpdate();
+      }
+    onRunTypeTargets(e : any) {
+        this.listmode = 'Targets';
         this.ismoderev = false;
         this.forceUpdate();
       }
@@ -73,23 +80,33 @@ export class MP extends FlowPage {
         this.setState({ envOption });
     }
 
-    async runProcessexe (processesToRun:any , env:String) {
-        if (processesToRun.length > 0){
-            let envToRun:String;
-                if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
-                else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
-            let useDates = (this.state.checked) ? 'Y' : '' ;
-
-            const processArray = processesToRun.map(((process :any) => {
+    async runProcessexe () {
+        let envToRun:String = "8e42eb7d-d9ab-4736-8e37-46132749b8e7";
+        let useDates = '' ;
+        let process = '' ;
+        switch(this.listmode) {
+            case "Budget" :
+                process = 'f8421de8-02c1-4c4a-83fe-a9c6da0aeb29'
+                break;
+            case "Adjustments" :
+                process = 'bd62d1aa-d396-4e56-baff-5e1781dbb63a'
+                break;
+            case "Mapping" :
+                process = '576e46fa-d7d9-43d7-a55c-ac55934f3270'
+                break;
+            case "Targets" :
+                process = 'ec3c2205-71ad-4e78-ab25-63b9d44f3789'
+                break;
+        }
                 fetch("https://boomi.naturalint.com:9090/ws/simple/queryExecuteprocess;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
                 { 
                     method: "POST", 
                     body: JSON.stringify(
-                          {"processId":process.value ,
+                          {"processId": process,
                           "atomId":envToRun,
                           "useDates" : useDates,
-                          "startDate" : this.state.startDate,
-                          "endDate" : this.state.endDate
+                          "startDate" : new Date(),
+                          "endDate" : new Date()
                          }),
                     headers : new Headers({
                         "Accept": "application/json",                
@@ -97,119 +114,54 @@ export class MP extends FlowPage {
                     }),
                     credentials: "same-origin",
                     mode: 'no-cors'
-                })
-                // .then(response => {
-                //     console.log(response.status)
-                //     console.log(response)
-                // })
-            })) ;  
-            Notiflix.Notify.Success(processesToRun.length + ' processes were executed!');
-        }
-        else{
-            Notiflix.Report.Failure('Execution Validation','No process was chosen','Click');
-        }
+                })                
+            Notiflix.Notify.Success('MP ' + this.listmode + ' process was executed!');
     }
-
-  
 /* ********************************************************************************** */    
     
     render() {
         Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
-        const processes : any = [] ;
-        let process_element : any = {} ;    
-       
         if (this.loadingState !== eLoadingState.ready) {  
             return (<div></div>) ;
         }
         else {
-        //     let rev_List : FlowObjectDataArray ;
-        //     switch(this.listmode) {
-        //         case "Revenue" :
-        //             rev_List = this.fields["BEM:List:Revenue_Site"].value as FlowObjectDataArray
-        //             break;
-        //         case "Subid":
-        //             rev_List = this.fields["BEM:List:Subid_Site"].value as FlowObjectDataArray
-        //             break;
-        //         case "Fetch":
-        //             rev_List = this.fields["BEM:List:FetchProcess"].value as FlowObjectDataArray
-        //             break;
-        // } 
-        // rev_List.items.forEach((item: FlowObjectData) => {
-        //     process_element = {}
-        //     Object.keys(item.properties).forEach((key: string) => {            
-        //         switch(key) {
-        //             case "Process_Id" :
-        //                 process_element["value"] = item.properties[key].value;
-        //                 break;
-        //             case "Process_Desc" :
-        //                 process_element["label"] = item.properties[key].value;
-        //                 break;
-        //         }
-        //     })
-        //     processes.push(process_element)
-        // })
     return (
-        
         <div className = "container"> 
-             <div>
-                <h2> Run Process </h2>
+             <div className = "Bem-header">
+                <h2> Run Media Profit Process </h2>
             </div> 
-                <div className ="Bem-row">    
-                    {/* <div className = "Bem-row" style ={{float:"right" }}>
-                        <Switch id="toggle" onChange={this.handleEnvChange} checked={this.state.envOption} className="react-switch"
-                            width={140} height={40}
-                            //onColor = "#08f" 
-                            uncheckedIcon={
-                                <div style={{
-                                    display: "flex",justifyContent: "center",alignItems: "center",
-                                    height: "100%",fontSize: 17,color: "white",paddingRight: 2,marginRight:"45px"
-                                }}
-                                >QA
-                                </div>
-                            }
-                            checkedIcon={
-                                <div style={{
-                                display: "flex",alignItems: "center",height: "100%",fontSize: 17,
-                                color: "white",paddingLeft: 2,marginLeft:"10px"
-                                }}
-                            >Production
-                                </div>
-                            }
-                            />   
-                    </div>
-
-                <div style ={{marginTop:"100px"}}> 
-                    <h5> Run type </h5>
-                </div>                
+                <div className ="Bem-row">
                     <div className = "Bem-row"> 
                     <fieldset>
-                        <div className="radio">
-                            <label className = "radio-label">
+                        <div className="radio" style = {{marginBottom: "30px"}}>
+                            <label className = "Bem-row">
                                 <input type="radio" name="ListType" value="revenues"  checked = {this.ismoderev}
-                                onChange={this.onRunTypeRevChanged}/>  Includes Revenues 
+                                onChange={this.onRunTypeBudget}/>  Budget
                             </label>
                         </div>
-                        <div className="radio">
-                            <label className = "radio-label">
+                        <div className="radio" style = {{marginBottom: "30px"}}>
+                            <label className = "Bem-row">
                                 <input type="radio" name="ListType" value="subids" 
-                                onChange={this.onRunTypeSidChanged}/> Subids Only
+                                onChange={this.onRunTypeAdjustment}/> Adjustment
                             </label>
                         </div>
-                        <div className="radio">
-                            <label className = "radio-label">
+                        <div className="radio" style = {{marginBottom: "30px"}}>
+                            <label className = "Bem-row">
                                 <input type="radio" name="ListType" value="Fetch" 
-                                onChange={this.onRunTypeFetchChanged}/> Fetching
+                                onChange={this.onRunTypeMapping}/> Mapping
+                            </label>          
+                        </div>
+                        <div className="radio" style = {{marginBottom: "30px"}}>
+                            <label className = "Bem-row">
+                                <input type="radio" name="ListType" value="Fetch" 
+                                onChange={this.onRunTypeTargets}/> Targets
                             </label>          
                         </div>
                     </fieldset>
-                    </div>
-                    <hr style = {{border:"1px solid silver"}}></hr>
-                    <div className = "Bem-row"> 
-                       <RunSelect  processes_list = {processes} SelecthandleChange = {this.SelecthandleChange} /> 
-                    </div> */}
+                    </div> 
                     <div className = "Bem-row Bem-btn">       
-                        <button id = "MPrunProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
-                        type="button" className = "btn btn-primary run-btn" 
+                        <button id = "MPrunProcess" onClick = {this.runProcessexe} 
+                        type="button" className = "btn btn-primary" 
                         style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
                         > Run </button>
                     </div>

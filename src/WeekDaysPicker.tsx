@@ -14,14 +14,14 @@ export default class WeekDaysPicker extends React.Component<any, any> {
     }
     toggleClass() {
         let possible = this.props.noDays();
-        if (possible){
-            this.setState({ WDactive: !this.state.WDactive});
-            this.props.handleWD_Change(this.props.text,!this.state.WDactive) ;
-            console.log(this.props.text,!this.state.WDactive)
-        }
-        else{
-            Notiflix.Report.Failure('Scheduler Validation','The process schedule must have at least one active day','Click');
-        }
+        this.setState({ WDactive: !this.state.WDactive});
+        this.props.handleWD_Change(this.props.text,!this.state.WDactive) ;
+        console.log(this.props.text,!this.state.WDactive)
+        // if (possible){
+        // }
+        // else{
+        //     Notiflix.Report.Failure('Scheduler Validation','The process schedule must have at least one active day','Click');
+        // }
     };
 
     render() {

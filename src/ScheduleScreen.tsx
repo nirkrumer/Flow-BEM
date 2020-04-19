@@ -6,15 +6,9 @@ import { FlowObjectData, IFlowObjectData } from './models/FlowObjectData';
 import { eLoadingState } from './models/FlowBaseComponent';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
-import ToolkitProvider,{ CSVExport, Search ,selectRow ,ColumnToggle} from 'react-bootstrap-table2-toolkit';
-// import {ModalHeader,ModalTitle, ModalClose, ModalBody, ModalFooter } from 'react-modal-bootstrap';
-// import { Input} from 'react-bootstrap';
 import Switch from "react-switch";
-import DatePicker from 'react-datepicker';
-import cellEditFactory from 'react-bootstrap-table2-editor';
 import 'react-datepicker/dist/react-datepicker.css';
 import ​'./ScheduleScreen.css';
-
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
@@ -27,6 +21,8 @@ declare const manywho: IManywho;
 export class SchedulesScreen extends FlowPage {
     node: any;
     schedArrayList:any[]= []
+    hourSentToComponent = '';
+    products : any[] = [] ;
 ​
     constructor(props: any) {
         super(props);
@@ -36,16 +32,15 @@ export class SchedulesScreen extends FlowPage {
         this.refrshTable = this.refrshTable.bind(this)
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
         this.onHourEndChange = this.onHourEndChange.bind(this)
-
+        this.initDates = this.initDates.bind(this)
+        this.saveHandler = this.saveHandler.bind(this)
         this.UpdateSchedule = this.UpdateSchedule.bind(this)
         this.SelecthandleChange = this.SelecthandleChange.bind(this)
+        this.onhourChangeLogics = this.onhourChangeLogics.bind(this)
         this.state = {
             Toggleoption : false,
             checked : false,
-            show: false,
-            id: 0,
-            hour : null,
-            time: 0,
+            hour : "",
             selectedOption: [],
             
             sun: true,
@@ -73,21 +68,18 @@ export class SchedulesScreen extends FlowPage {
 
 handleSwitchChange(Toggleoption : boolean){
     this.setState({ Toggleoption });
-    console.log ("toggel = " + this.state.Toggleoption)
   }
 ​
-handleCheckboxClick(Sched_Id: any){
-    let sched_Data:any =  {}
-    sched_Data["Sched_Id"]=Sched_Id
+handleCheckboxClick(row: any, rowIndex: number){
     this.setState({
         checked:!this.state.checked
     });
     if(this.state.checked)
     {       
-        if(this.schedArrayList.some(item => item.Sched_Id === Sched_Id))
+        if(this.schedArrayList.some(item => item.Sched_Id === row.Sched_Id))
         {         
             for(var i = 0; i < this.schedArrayList.length; i++) {
-                if(this.schedArrayList[i].Sched_Id === Sched_Id) {
+                if(this.schedArrayList[i].Sched_Id === row.Sched_Id) {
                     var index=i
                     this.schedArrayList.splice(index,1)                    
                     break;
@@ -95,7 +87,10 @@ handleCheckboxClick(Sched_Id: any){
             }
         }
         else{
-            this.schedArrayList.push(sched_Data)
+            this.schedArrayList.push({
+                "Index": rowIndex,
+                "Sched_Id" : row.Sched_Id
+            })
         }
             this.setState({
                 checked:!this.state.checked        
@@ -117,68 +112,94 @@ nameChange = (e:any) => {
     this.setState({name: e.target.value});
 }
 
-saveHandler(schedArrayList:any,products:any)  {        
+
+saveHandler(schedArrayList:any)  {        
     let sched_Data_To_Update_Array:any = []
     if (schedArrayList.length == 0){
         Notiflix.Report.Failure('Schedule Save Validation','No process was chosen','Click');
     }
-    else{
+    else{ 
         for(var i = 0; i < schedArrayList.length; i++) {
-            for(var j = 0; j < products.length; j++) {
-              if(schedArrayList[i].Sched_Id===products[j].Sched_Id) {    
-               
-                let sched_Data_To_Update:any =  {}
-    
-                sched_Data_To_Update["Sched_Id"]=products[j].Sched_Id
-                sched_Data_To_Update["Process_Id"]=products[j].Process_Id
-                sched_Data_To_Update["Process_Name"]=products[j].Process_Name
-                sched_Data_To_Update["Is_Enabled"]=products[j].Is_Enabled
-                sched_Data_To_Update["Days"]=products[j].Days
-                sched_Data_To_Update["Hours"]=products[j].Hours
-                sched_Data_To_Update["Minutes"]=products[j].Minutes                          
-                sched_Data_To_Update_Array.push(sched_Data_To_Update)
-                }
-           }
+            //for(var j = 0; j < this.products.length; j++) {
+                //if(schedArrayList[i].Sched_Id===this.products[j].Sched_Id) {                
+            let productIndex : number = schedArrayList[i].Index ;
+            let sched_Data_To_Update:any =  {} ;
+
+            sched_Data_To_Update["Sched_Id"]=this.products[productIndex].Sched_Id
+            sched_Data_To_Update["Process_Id"]=this.products[productIndex].Process_Id
+            sched_Data_To_Update["Process_Name"]=this.products[productIndex].Process_Name
+            sched_Data_To_Update["Is_Enabled"]=this.products[productIndex].Is_Enabled
+            sched_Data_To_Update["Days"]=this.products[productIndex].Days
+            sched_Data_To_Update["Hours"]=this.products[productIndex].Hours
+            sched_Data_To_Update["Minutes"]=this.products[productIndex].Minutes                          
+            sched_Data_To_Update_Array.push(sched_Data_To_Update)
+                //}
+           //}
         }  
-    console.log(sched_Data_To_Update_Array)
     this.UpdateSchedule(sched_Data_To_Update_Array);
-    }
+}
 }
 
 async UpdateSchedule(sched_Data_To_Update_Array:any){
-    this.fields['BEM:Update_Schedules_List'].value = sched_Data_To_Update_Array as FlowObjectDataArray
-    this.updateValues([this.fields['BEM:Update_Schedules_List']]);
-    await this.triggerOutcome('Save');
-    window.location.reload(false);  
+    console.log("array = " + JSON.stringify(sched_Data_To_Update_Array))
+    if (sched_Data_To_Update_Array.length == 0){
+        Notiflix.Report.Failure('Schedule Save Validation','No process was chosen','Click');
+    }
+    else{ 
+    let demeObject : any = {} ;
+    demeObject ["array"] = sched_Data_To_Update_Array ;
+      await fetch("https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocess;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+        { 
+            method: "POST", 
+            body: JSON.stringify(demeObject),
+            headers : new Headers({
+                "Accept": "application/json",                
+                "Content-Type": "application/json"
+            }),
+            credentials: "same-origin",
+            mode: 'no-cors'
+        })
+      //  this.triggerOutcome('Save');
+        //  this.fields['BEM:Update_Schedules_List'].value = sched_Data_To_Update_Array as FlowObjectDataArray
+        //  console.log("Flow field: " + JSON.stringify(this.fields['BEM:Update_Schedules_List'].value)) ;
+        //  this.updateValues([this.fields['BEM:Update_Schedules_List']]);
+        //  
+   //      window.location.reload(false);  
+    }
 }
 
-onHourEndChange(hour:any){
+onHourEndChange(hour:string,row:any){
     this.setState({hour})
+    this.hourSentToComponent = hour ;
+}
+onhourChangeLogics(rowIndex:number){
+    this.products[rowIndex].Hours = this.hourSentToComponent.substring(0,2);
+    this.products[rowIndex].Minutes = this.hourSentToComponent.substring(3,5);
     this.forceUpdate();
-    console.log(hour + "and the type is: " + typeof(hour))
-    console.log("state = " + this.state.hour)
+    console.log("product in row " + rowIndex + " = " + JSON.stringify(this.products[rowIndex]))
 }
 
 
-initDates(){
-    this.setState({time:this.state.Hours})
-    console.log(this.state.Hours)
+initDates(row:any){
+    this.setState({hour : row.Hours + ":" + row.Minutes })
+    this.hourSentToComponent = row.Hours + ":" + row.Minutes;
+
 }  
 noDays (row : any){
     // if((row.days.length<2) && (!active)) { return true;} 
     //     else {return false;}
 }    
 ​handleWeekDay(text:String,active:any,row:any,products:any){
-    this.forceUpdate();
+    //this.forceUpdate();
     let days = row.Days
     console.log ("active = " + active)
     
 
     for(var j = 0; j < products.length; j++) {
-        if(products[j].Sched_Id==row.Sched_Id)
+        if(this.products[j].Sched_Id==row.Sched_Id)
     {
-//     console.log("products Before:",products[j].Days)
-//     if(products[j].Days.length<='2' && active=='false') 
+//     console.log("products Before:",this.products[j].Days)
+//     if(this.products[j].Days.length<='2' && active=='false') 
 //     {
 
 //     }
@@ -258,8 +279,8 @@ noDays (row : any){
             console.log("day= ",text, "is ", this.state.sat);
             break;
           }
-          products[j].Days=days;
-          console.log("After :",products[j].Days)
+          this.products[j].Days=days;
+          console.log("After :",this.products[j].Days)
          }
         }
         //console.log("products :",this.setState({products:days}))
@@ -271,42 +292,50 @@ SelecthandleChange (selectedOption : any) {
 }
 
 render(){
-    const processes : any = ["1"] ;
-    const products: any = [];
-    let product_element: any = {};
+    if (this.products.length == 0){
+        this.products = [] ;
+        let product_element: any = {};
         if (this.loadingState !== eLoadingState.ready) {
-        return (<div></div>);
-
-    }
-    else {
-        const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
-      //  console.log(api_request)
-       api_request.items.forEach((item: FlowObjectData) => {
-        product_element = {}
-        Object.keys(item.properties).forEach((key: string) => {
-            switch (key) {
-                case "Sched_Id":
-                    product_element["Sched_Id"] = item.properties[key].value;
-                    break;
-                case "Process_Name":
-                    product_element["Process_Name"] = item.properties[key].value;
-                    break;
-                case "Is_Enabled":
-                    product_element["Is_Enabled"] = item.properties[key].value;
-                    break;
-                case "Days":
-                    product_element["Days"] = item.properties[key].value;
-                    break;
-                case "Minutes":
-                    product_element["Minutes"] = item.properties[key].value;
-                    break;
-                case "Hours":
-                    product_element["Hours"] = item.properties[key].value;
-                    break;
-            }
+            return (<div></div>);
+        }
+        else {
+            const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
+            api_request.items.forEach((item: FlowObjectData) => {
+                let processName = item.properties["Process_Name"].value.toString() ;
+                if ((processName.includes("INCLUDES REVENUES"))
+                    || (processName.includes("SubidsOnly"))
+                    || (processName.includes("Subids+Calls Only")))                
+                {
+                    product_element = {}
+                    Object.keys(item.properties).forEach((key: string) => {
+                        switch (key) {
+                            case "Sched_Id":
+                                product_element["Sched_Id"] = item.properties[key].value;
+                                break;
+                            case "Process_Name":
+                                product_element["Process_Name"] = item.properties[key].value;
+                                break;
+                            case "Is_Enabled":
+                                product_element["Is_Enabled"] = item.properties[key].value;
+                                break;
+                            case "Days":
+                                product_element["Days"] = item.properties[key].value;
+                                break;
+                            case "Minutes":
+                                product_element["Minutes"] = item.properties[key].value;
+                                break;
+                            case "Hours":
+                                product_element["Hours"] = item.properties[key].value;
+                                break;
+                            case "Process_Id":
+                                product_element["Process_Id"] = item.properties[key].value;
+                                break;
+                        }
+                    });
+                    this.products.push(product_element)
+                }
         });
-        products.push(product_element)
-    });
+        }
     }
     const defaultSorted = [{
         dataField: 'Process_Name',
@@ -318,17 +347,20 @@ render(){
             isDummyField: false,
             text: '',
             editable: false,
-            formatter: (cellContent:any,row: any) => {
+            formatter: (cellContent:any,row: any,rowIndex: any) => {
                 return (
                     <div className="custom-control custom-checkbox">
                       <CheckBoxComponent     
                             checked={this.state.checked}
-                            onChange={()=>this.handleCheckboxClick(row.Sched_Id)}
+                            onChange={()=>this.handleCheckboxClick(row,rowIndex)}
                             cssClass="e-success"
                         />
                 </div>              
                 );
             },
+            headerStyle: () => {
+                return { width: '40px' };
+            }
         },
         {
             dataField: 'Is_Enabled',
@@ -371,7 +403,7 @@ render(){
             dataField: 'Days2',
             text: 'Days2',
             editable: false,
-            formatter: (cellContent: any,row: any) => {
+            formatter: (cellContent: any,row: any, rowIndex: number) => {
                 //let daysBoolArray : boolean [] = [false,false,false,false,false,false,false] ;
 
                 let sun_bool : boolean = row.Days.includes('1') ? true: false;
@@ -381,25 +413,25 @@ render(){
                 let thu_bool : boolean = row.Days.includes('5') ? true: false;
                 let fri_bool : boolean = row.Days.includes('6') ? true: false;
                 let sat_bool : boolean = row.Days.includes('7') ? true: false;
-                // if (row.Days == '*'){
-                //     sun_bool = true;
-                //     mon_bool = true;
-                //     tue_bool = true;
-                //     wed_bool = true;
-                //     sun_bool = true;
-                //     sun_bool = true;
-                //     sun_bool = true;
-                // }
+                if (row.Days == '*'){
+                    sun_bool = true;
+                    mon_bool = true;
+                    tue_bool = true;
+                    wed_bool = true;
+                    thu_bool = true;
+                    fri_bool = true;
+                    sat_bool = true;
+                }
                 
                 return (        
                     <div>
-                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",sun_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",mon_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",tue_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",wed_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",thu_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",fri_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
-                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",sat_bool,row,products, )} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Sun" active = {sun_bool} handleWD_Change = {()=>this.handleWeekDay("Sun",sun_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Mon" active = {mon_bool} handleWD_Change = {()=>this.handleWeekDay("Mon",mon_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Tue" active = {tue_bool} handleWD_Change = {()=>this.handleWeekDay("Tue",tue_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Wed" active = {wed_bool} handleWD_Change = {()=>this.handleWeekDay("Wed",wed_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Thu" active = {thu_bool} handleWD_Change = {()=>this.handleWeekDay("Thu",thu_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Fri" active = {fri_bool} handleWD_Change = {()=>this.handleWeekDay("Fri",fri_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
+                        <WeekDaysPicker text = "Sat" active = {sat_bool} handleWD_Change = {()=>this.handleWeekDay("Sat",sat_bool,row,this.products)} noDays = {()=>this.noDays(row)}/>
                     </div>
                 )
             },
@@ -419,25 +451,21 @@ render(){
             dataField: 'HourDP',
             text: 'HourDP',
             editable: false,
-            formatter: () => {
+            formatter: (cellContent: any,row: any, rowIndex: number) => {
+                if (cellContent == undefined){
+                    this.initDates(row)
+                }
                 return (        
-                    <HourComp onHourEndChange = {this.onHourEndChange} hour = {this.state.hour}/> 
-            // <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.state.hour}
-            // selected = {this.state.hour}
-            //                 timeIntervals={30} onChange={ this.onHourEndChange } />
-                )}
+                    <HourComp onHourEndChange = {this.onHourEndChange}
+                    onhourChangeLogics = {()=>this.onhourChangeLogics(rowIndex)}
+                        hourA = {this.hourSentToComponent}/>
+                )                
+            },
+            headerStyle: () => {
+                return { width: '200px' };
+            }
         },
-        {
-            dataField: 'Hour2',
-            text: 'Hour2',
-            editable: false,
-            formatter: () => {
-                return (    
-                <h6>
-                    {/* {this.state.hour} */}
-                    </h6>
-            )},
-        }
+       
         ]
             const MySearch = (props: any) => {
                 let input: any;
@@ -464,24 +492,15 @@ render(){
             <h2> Process Schedule </h2>
         </div> 
         <div className = 'Bem-row'>
-            <button className = "btn btn-primary" onClick={()=>this.saveHandler(this.schedArrayList,products)}>Save</button>
+            <button className = "btn btn-primary" onClick={()=>
+                this.saveHandler(this.schedArrayList)
+                //this.UpdateSchedule(this.schedArrayList)
+                }>Save</button>
         </div>
     ​        <BootstrapTable
                 keyField="id"
-                data={products}
+                data={this.products}
                 columns={columns}
-                cellEdit={ cellEditFactory({mode: 'click',
-                //blurToSave: true,
-                afterSaveCell: (oldValue: any, newValue: any, row:any, column: any) => {
-                    if(column.dataField == 'Hours') {
-                        row.Hours = newValue;
-                    }
-                    else{
-                        row.Minutes = newValue;
-                    }
-                    
-                } 
-            }) }
             />
         </div>
              )

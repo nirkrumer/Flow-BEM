@@ -8,16 +8,16 @@ import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 export declare class MP extends FlowPage {
     listmode: String;
     ismoderev: boolean;
-    chosenProcesses: String[];
     constructor(props: any);
     componentDidMount(): Promise<void>;
     moveHappened(xhr: XMLHttpRequest, request: any): void;
     componentWillUnmount(): Promise<void>;
-    onRunTypeRevChanged(e: any): void;
-    onRunTypeSidChanged(e: any): void;
-    onRunTypeFetchChanged(e: any): void;
+    onRunTypeBudget(e: any): void;
+    onRunTypeAdjustment(e: any): void;
+    onRunTypeMapping(e: any): void;
+    onRunTypeTargets(e: any): void;
     handleEnvChange(envOption: any): void;
-    runProcessexe(processesToRun: any, env: String): Promise<void>;
+    runProcessexe(): Promise<void>;
     render(): JSX.Element;
 }
 export default MP;

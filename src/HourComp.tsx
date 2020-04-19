@@ -19,6 +19,7 @@ export default class HourComp extends React.Component<any, any> {
         this.setState({hourHC})
         const hourSTR = hourHC.toTimeString().substring(0,5);
         this.props.onHourEndChange(hourSTR) ;
+        this.props.onhourChangeLogics();
     }
    
     render(){
