@@ -148,7 +148,7 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
     else{ 
     let demeObject : any = {} ;
     demeObject ["array"] = sched_Data_To_Update_Array ;
-      await fetch("https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocess;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+      await fetch("https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
         { 
             method: "POST", 
             body: JSON.stringify(demeObject),
@@ -159,12 +159,8 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
             credentials: "same-origin",
             mode: 'no-cors'
         })
-      //  this.triggerOutcome('Save');
-        //  this.fields['BEM:Update_Schedules_List'].value = sched_Data_To_Update_Array as FlowObjectDataArray
-        //  console.log("Flow field: " + JSON.stringify(this.fields['BEM:Update_Schedules_List'].value)) ;
-        //  this.updateValues([this.fields['BEM:Update_Schedules_List']]);
-        //  
-   //      window.location.reload(false);  
+        this.triggerOutcome('Save');
+        window.location.reload(false);  
     }
 }
 
@@ -302,9 +298,9 @@ render(){
             const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
             api_request.items.forEach((item: FlowObjectData) => {
                 let processName = item.properties["Process_Name"].value.toString() ;
-                if ((processName.includes("INCLUDES REVENUES"))
-                    || (processName.includes("SubidsOnly"))
-                    || (processName.includes("Subids+Calls Only")))                
+                // if ((processName.includes("INCLUDES REVENUES"))
+                //     || (processName.includes("SubidsOnly"))
+                //     || (processName.includes("Subids+Calls Only")))                
                 {
                     product_element = {}
                     Object.keys(item.properties).forEach((key: string) => {
