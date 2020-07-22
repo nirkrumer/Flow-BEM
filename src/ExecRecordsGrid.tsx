@@ -101,28 +101,7 @@ export class ExecRecordsGrid extends FlowPage {
                   credentials: "same-origin",
                   mode:"no-cors"
             })
-           .then(res=>console.log(res)) 
-            // .then (response => {
 
-            //     console.log(response.data)
-            //     this.setState({ tabledata: response.data, is_loading: false})
-            // })
-
-/*******************    AXIOS    ******************************** */
-
-    //     axios.post("https://boomi.naturalint.com:9090/ws/simple/getExecutionRecords;boomi_auth=" + btoa(username + ':' + password),
-    //     {"env": "123", mode: 'no-cors'},
-    //     {
-    //         headers : {
-    //             mode: "no-cors",
-    //             credentials: "same-origin",
-    //             'Access-Control-Allow-Origin': true
-    //         }}
-    //     )
-    //     .then(res => {
-    //         console.log(res);
-    //         console.log(res.data);
-    //   })
             Notiflix.Notify.Info('Page is refreshing...');
             this.forceUpdate();            
         }
@@ -175,37 +154,43 @@ export class ExecRecordsGrid extends FlowPage {
          //   this.tableProcList = this.fields["BEM:List:AllProcesses"].value as FlowObjectDataArray;
             const api_request: FlowObjectDataArray = this.fields["BEM:List:Execution_API_Request"].value as FlowObjectDataArray;
             api_request.items.forEach((item: FlowObjectData) => {
-                product_element = {};
-                Object.keys(item.properties).forEach((key: string) => {
-                    switch (key) {
-                        case "bns:processName":
-                            product_element["processName"] = item.properties[key].value;
-                            break;
-                        case "bns:atomName":
-                            product_element["atomName"] = item.properties[key].value;
-                            break;
-                        case "bns:executionType":
-                            product_element["executionType"] = item.properties[key].value;
-                            break;
-                        case "bns:executionTime":
-                            product_element["startTime"] = item.properties[key].value;
-                            break;
-                        case "bns:status":
-                            product_element["status"] = item.properties[key].value;
-                            break;
-                        case "bns:message":
-                            product_element["errormsg"] = item.properties[key].value;
-                            break;
-                        case "bns:executionDuration":
-                            product_element["executionDuration"] = item.properties[key].value;
-                            break;
-                        case "bns:executionId":
-                            product_element["executionId"] = item.properties[key].value;
-                            break;    
+                let processName = item.properties["bns:processName"].value.toString() ;
+                if ((processName.includes("INCLUDES REVENUES"))
+                     || (processName.includes("SubidsOnly"))
+                     || (processName.includes("Subids+Calls Only")))
+                     {
+                         product_element = {};
+                         Object.keys(item.properties).forEach((key: string) => {
+                             switch (key) {
+                                 case "bns:processName":
+                                     product_element["processName"] = item.properties[key].value;
+                                     break;
+                                 case "bns:atomName":
+                                     product_element["atomName"] = item.properties[key].value;
+                                     break;
+                                 case "bns:executionType":
+                                     product_element["executionType"] = item.properties[key].value;
+                                     break;
+                                 case "bns:executionTime":
+                                     product_element["startTime"] = item.properties[key].value;
+                                     break;
+                                 case "bns:status":
+                                     product_element["status"] = item.properties[key].value;
+                                     break;
+                                 case "bns:message":
+                                     product_element["errormsg"] = item.properties[key].value;
+                                     break;
+                                 case "bns:executionDuration":
+                                     product_element["executionDuration"] = item.properties[key].value;
+                                     break;
+                                 case "bns:executionId":
+                                     product_element["executionId"] = item.properties[key].value;
+                                     break;    
+                             }
+                         });
+                         products.push(product_element)
                     }
                 });
-                products.push(product_element)
-            });
         }
         const defaultSorted = [{
             dataField: 'startTime',
@@ -340,16 +325,6 @@ export class ExecRecordsGrid extends FlowPage {
             }
             return style;        
         }
-        /* const MyExportCSV = (props : any) => {
-             const handleClick = () => {
-               props.onExport();
-             };
-             return (
-               <div>
-                 <button className="btn btn-success" onClick={ handleClick }>Click me to export CSV</button>
-               </div>
-             );
-           };*/
         /* ********************************************************************************** */
         const tabledataTosend = (this.state.tabledata.length > 0 ) ? this.state.tabledata : products  ;
         return (

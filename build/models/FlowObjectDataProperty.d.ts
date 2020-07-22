@@ -11,6 +11,7 @@ export interface IFlowObjectDataProperty {
     typeElementPropertyId: string;
 }
 export declare class FlowObjectDataProperty {
+    [x: string]: any;
     static newInstance(developerName: string, contentType: eContentType, value: string | number | boolean | FlowObjectData | FlowObjectDataArray): FlowObjectDataProperty;
     private ContentFormat;
     private ContentType;

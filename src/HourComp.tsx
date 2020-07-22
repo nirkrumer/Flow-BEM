@@ -1,8 +1,5 @@
 import * as React from 'react';
 import DatePicker from 'react-datepicker';
-var parseISO = require('date-fns/parseISO')
-
-
 
 export default class HourComp extends React.Component<any, any> {
     
@@ -32,7 +29,7 @@ export default class HourComp extends React.Component<any, any> {
         return(
             <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.hourValue}
             selected = {this.state.hourHC} 
-                            timeIntervals={30} onChange={ this.onChange } /> 
+                            timeIntervals={5} onChange={ this.onChange } /> 
         )
     }
 }

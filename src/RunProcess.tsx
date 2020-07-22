@@ -151,10 +151,6 @@ export class RunProcess extends FlowPage {
                     credentials: "same-origin",
                     mode: 'no-cors'
                 })
-                // .then(response => {
-                //     console.log(response.status)
-                //     console.log(response)
-                // })
             })) ;  
             Notiflix.Notify.Success(processesToRun.length + ' processes were executed!');
         }
@@ -205,10 +201,7 @@ export class RunProcess extends FlowPage {
     return (
         
         <div className = "container"> 
-        {/* {React.createElement(manywho.component.getByName('navigation'), { id: manywho.model.getDefaultNavigationId(this.flowKey), flowKey: this.flowKey})} */}
-             <div 
-            //  className = "Bem-header"
-             >
+             <div className = "Bem-header">
                 <h2> Run Process </h2>
             </div> 
                 <div className ="col-sm-6">    
@@ -266,7 +259,6 @@ export class RunProcess extends FlowPage {
                     </div>
                     <div className = "Bem-row Bem-btn">       
                         <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
-                        //this.runSlackApproveMsg(this.state.selectedOption,this.state.envOption)}
                         type="button" className = "btn btn-primary run-btn" 
                         style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
                         > Run </button>
@@ -275,28 +267,6 @@ export class RunProcess extends FlowPage {
                 
                 <div className ="col-sm-1"></div> 
                 <div className ="col-sm-5">    
-                    {/* <div className = "Bem-row">
-                    <Switch id="toggle" onChange={this.handleEnvChange} checked={this.state.envOption} className="react-switch"
-                        width={140} height={40}
-                        //onColor = "#08f" 
-                        uncheckedIcon={
-                            <div style={{
-                                display: "flex",justifyContent: "center",alignItems: "center",
-                                height: "100%",fontSize: 17,color: "white",paddingRight: 2,marginRight:"45px"
-                            }}
-                            >QA
-                            </div>
-                        }
-                        checkedIcon={
-                            <div style={{
-                            display: "flex",alignItems: "center",height: "100%",fontSize: 17,
-                            color: "white",paddingLeft: 2,marginLeft:"10px"
-                            }}
-                        >Production
-                            </div>
-                        }
-                        />   
-                    </div> */}
                     <div className = "Bem-row"> 
                         <CheckBoxComponent 
                             label="Use dates for run"
@@ -304,7 +274,6 @@ export class RunProcess extends FlowPage {
                             onChange={this.handleCheckboxClick}
                             cssClass="e-success"
                         />
-                        {/* <span style={{ display: "block-inline",fontSize: "150%" }}> Use dates for run?</span>         */}
                     </div>
                     <hr style={hideStyleHR}></hr>
                     <div className = "Bem-row"> 
