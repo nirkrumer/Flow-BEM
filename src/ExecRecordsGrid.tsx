@@ -18,7 +18,6 @@ export class ExecRecordsGrid extends FlowPage {
     timerId : any ;
     listmode:String = 'Prod' ;
     ismoderev:boolean = true ;
-//    tableProcList: FlowObjectDataArray ;
     
     constructor(props: any) {
         super(props);
@@ -355,11 +354,7 @@ export class ExecRecordsGrid extends FlowPage {
                 <div className = "row" style ={{float:"right" }}>
                     <button className = "btn btn-primary" type="button" onClick={this.flowrefreshTable}>Refresh</button>
                 </div>
-                <br></br><br></br>
-                {/* <div className = "row" style ={{float:"right" }}>
-                    <button className = "btn btn-primary" type="button" onClick={this.flowrefreshTable}>Flow Refresh</button>
-                </div> */}
-                
+                <br></br><br></br>                
                 <div className = "row" style ={{float:"right" }}>
                 <label>
                         <span style={{ display : "flex",fontSize: "140%" }}> Auto Run</span>

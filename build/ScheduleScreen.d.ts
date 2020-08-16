@@ -26,7 +26,7 @@ export declare class SchedulesScreen extends FlowPage {
     initDays(row: any): void;
     initSwitch(row: any): void;
     handleSwitchChange(Toggleoption: boolean): void;
-    handleSwitchChangeLogics(cellContent: any, rowIndex: number): void;
+    handleSwitchChangeLogics(rowIndex: number): void;
     handleCheckboxClick(row: any, rowIndex: number): void;
     refrshTable(): void;
     handleClose(): void;

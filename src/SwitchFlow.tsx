@@ -13,7 +13,7 @@ export default class SwitchFlow extends React.Component<any, any> {
             swToggleOption : this.props.toggleOption
         };
     }
-    toggleClass(swToggleOption : any) {
+    toggleClass(swToggleOption:any) {
         this.setState({swToggleOption})
         this.props.handleSwitchChange(swToggleOption) ;
         this.props.handleSwitchChangeLogics() ;

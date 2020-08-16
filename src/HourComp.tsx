@@ -26,10 +26,19 @@ export default class HourComp extends React.Component<any, any> {
         else {
             this.hourValue = this.props.hourA ;
         }
-        return(
-            <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.hourValue}
+
+        let datePickerObject : object;
+
+        if (this.hourValue.includes('/') || this.hourValue.includes('-')){
+            datePickerObject = <DatePicker timeFormat="HH:mm" value={this.hourValue} disabled/> 
+        }
+        else{
+            datePickerObject = <DatePicker showTimeSelect showTimeSelectOnly timeFormat="HH:mm" value={this.hourValue}
             selected = {this.state.hourHC} 
                             timeIntervals={5} onChange={ this.onChange } /> 
+        }
+        return(
+            datePickerObject
         )
     }
 }

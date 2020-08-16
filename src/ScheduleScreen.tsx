@@ -6,7 +6,6 @@ import { FlowObjectData, IFlowObjectData } from './models/FlowObjectData';
 import { eLoadingState } from './models/FlowBaseComponent';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
-import Switch from "react-switch";
 import 'react-datepicker/dist/react-datepicker.css';
 import ​'./ScheduleScreen.css';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
@@ -16,6 +15,7 @@ import WeekDaysPicker from './WeekDaysPicker';
 import HourComp from './HourComp';
 import Notiflix from "notiflix-react";
 import SwitchFlow from './SwitchFlow';
+import BSTable from './BSTable';
 
 declare const manywho: IManywho;
 ​
@@ -78,7 +78,6 @@ initHours(row:any){
     this.hourSentToComponent = row.Hours + ":" + row.Minutes;
 }  
 initDays(row:any){
-    this.setState({Tue : row.Days.includes('3') ? true: false});
     this.sunV = row.Days.includes('1') ? true: false;
     this.monV = row.Days.includes('2') ? true: false;
     this.tueV = row.Days.includes('3') ? true: false;
@@ -103,11 +102,11 @@ initSwitch (row:any){
 handleSwitchChange(Toggleoption : boolean){
     this.setState({ Toggleoption });
     this.toggleOption = Toggleoption ;
-    console.log(this.toggleOption)
     this.forceUpdate();
+    console.log(this.toggleOption)    
   }
 
-handleSwitchChangeLogics (cellContent:any, rowIndex : number){
+handleSwitchChangeLogics (rowIndex : number){
     this.products[rowIndex].Is_Enabled = this.toggleOption
     this.forceUpdate()
 }
@@ -138,7 +137,6 @@ handleCheckboxClick(row: any, rowIndex: number){
                 checked:!this.state.checked        
             });
     }
-    console.log(this.schedArrayList)        
 }
 
 refrshTable(){
@@ -398,6 +396,7 @@ render(){
                 if ((processName.includes("INCLUDES REVENUES"))
                     || (processName.includes("SubidsOnly"))
                     || (processName.includes("Subids+Calls Only")))                
+                if (1==1)
                 {
                     product_element = {}
                     Object.keys(item.properties).forEach((key: string) => {
@@ -455,28 +454,28 @@ render(){
                 return { width: '40px' };
             }
         },
-        // {s
-        //     dataField: 'Is_Enabled',
-        //     text: 'Enabled',
-        //     sort: true,
-        //     editable: false,
-        //     formatter: (cellContent: any,row: any, rowIndex: number) => {
-        //         this.initSwitch(row);
-        //             return (
-        //                 <div>
-        //                 <SwitchFlow
-        //                 toggleOption = {this.toggleOption}
-        //                 handleSwitchChange = {this.handleSwitchChange}
-        //                 handleSwitchChangeLogics = {()=>this.handleSwitchChangeLogics(cellContent,rowIndex)}
-        //                 />   
-        //                 </div>                  
-        //             )
+        {
+            dataField: 'Is_Enabled_View',
+            text: 'Enabled',
+            sort: true,
+            editable: false,
+            formatter: (cellContent: any,row: any, rowIndex: number) => {                
+                this.initSwitch(row);
+                    return (
+                        <div>
+                        <SwitchFlow
+                        toggleOption = {this.toggleOption}
+                        handleSwitchChange = {this.handleSwitchChange}
+                        handleSwitchChangeLogics = {()=>this.handleSwitchChangeLogics(rowIndex)}
+                        />   
+                        </div>                  
+                    )
                  
-        //     },
-        //     headerStyle: () => {
-        //         return { width: '90px' };
-        //     }
-        // },
+            },
+            headerStyle: () => {
+                return { width: '90px' };
+            }
+        },
         {
             dataField: 'Process_Name',
             text: 'Process',
@@ -535,24 +534,6 @@ render(){
         },
        
         ]
-            const MySearch = (props: any) => {
-                let input: any;
-                const handleClick = () => {
-                    props.onSearch(input.value);
-                };
-                return (
-                    <div>
-                        <input id='SearchBar'
-                            className="form-control"
-                            //style={ { size="" } }
-                            placeholder="Search..."
-                            type="text"
-                            ref={n => input = n}
-                            onChange={handleClick}
-                        />
-                    </div>
-                );
-            };
 
     return(
     <div className = "container">
@@ -565,14 +546,16 @@ render(){
                 //this.UpdateSchedule(this.schedArrayList)
                 }>Save</button>
         </div>
-    ​        <BootstrapTable
-                keyField="id"
-                data={this.products}
-                columns={columns}
-            />
-        </div>
-             )
-        }
+        {/* <BSTable products = {this.products} columns = {columns} defaultSorted = {defaultSorted}>
+        </BSTable> */}
+        <BootstrapTable
+            keyField="id"
+            data={this.products}
+            columns={columns}
+        />
+    </div>
+        )
+    }
 }
 ​
 manywho.component.register('SchedulesScreen', SchedulesScreen);
