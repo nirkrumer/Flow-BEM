@@ -3,4 +3,4 @@ navbar
 build
 src/mp-app/MP.tsx
 src/.env
-icons
+src/icons
