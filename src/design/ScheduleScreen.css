@@ -1,0 +1,21 @@
+.Bem-row{
+    margin-bottom: 30px;
+}
+
+.react-switch {
+    vertical-align: middle;
+    margin-left: 4px;
+    display: "flex"
+  }
+
+  .days{
+      margin-right: 15px;
+  }
+
+  .e-checkbox-wrapper.e-success .e-frame.e-check,
+.e-checkbox-wrapper.e-success .e-checkbox:focus + .e-frame.e-check { 
+  background-color: #0790dd;
+}
+.e-checkbox-wrapper.e-success:hover .e-frame.e-check { 
+    background-color: #229CDE;
+} 

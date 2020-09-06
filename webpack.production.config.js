@@ -1,3 +1,4 @@
+require('dotenv').config()
 const path = require('path');
 const fs = require('fs');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");

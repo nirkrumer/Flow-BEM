@@ -1,12 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import { FlowPage } from './models/FlowPage';
 import { IManywho } from './models/interfaces';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import { eLoadingState } from './models/FlowBaseComponent';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
 import { FlowObjectData} from './models/FlowObjectData';
-import RunSelect from './RunSelect';
-import './RunProcess.css'
+import RunSelect from './components/contollers/Select/RunSelect';
+import './design/RunProcess.css'
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
@@ -14,6 +14,7 @@ import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 import Switch from "react-switch";
 import Notiflix from "notiflix-react";
+import {processService} from './services/processService'
 
 declare const manywho: IManywho;
 
@@ -40,9 +41,10 @@ export class RunProcess extends FlowPage {
             startDate : new Date(),
             endDate : new Date(),
             isHidden: true,
-            checked : false,
+            useDates : false,
             billingChecked : false,
-            envOption : true
+            envOption : true,
+            userName : ''
         };
     }
 
@@ -53,6 +55,8 @@ export class RunProcess extends FlowPage {
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
         this.onRunTypeRevChanged(undefined); 
         this.initDates()
+        this.setState({userName : this.fields["userNameValue"].value as FlowObjectDataArray})
+        Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
         this.forceUpdate();
         return Promise.resolve();
     }
@@ -86,8 +90,8 @@ export class RunProcess extends FlowPage {
       }
     handleCheckboxClick(){
         this.setState({
-            checked:!this.state.checked,
-            isHidden:this.state.checked
+            useDates:!this.state.useDates,
+            isHidden:this.state.useDates
         });
     }
 
@@ -128,30 +132,7 @@ export class RunProcess extends FlowPage {
 
     async runProcessexe (processesToRun:any , env:String) {
         if (processesToRun.length > 0){
-            let envToRun:String;
-                if (env){envToRun = "8e42eb7d-d9ab-4736-8e37-46132749b8e7"}
-                else{envToRun = "2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd"}
-            let useDates = (this.state.checked) ? 'Y' : '' ;
-
-            const processArray = processesToRun.map(((process :any) => {
-                fetch("https://boomi.naturalint.com:9090/ws/simple/queryExecuteprocess;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
-                { 
-                    method: "POST", 
-                    body: JSON.stringify(
-                          {"processId":process.value ,
-                          "atomId":envToRun,
-                          "useDates" : useDates,
-                          "startDate" : this.state.startDate,
-                          "endDate" : this.state.endDate
-                         }),
-                    headers : new Headers({
-                        "Accept": "application/json",                
-                        "Content-Type": "application/json"
-                    }),
-                    credentials: "same-origin",
-                    mode: 'no-cors'
-                })
-            })) ;  
+            processService (processesToRun,env,this.state.useDates,this.state.startDate,this.state.endDate,this.state.userName)
             Notiflix.Notify.Success(processesToRun.length + ' processes were executed!');
         }
         else{
@@ -162,28 +143,26 @@ export class RunProcess extends FlowPage {
 /* ********************************************************************************** */    
     
     render() {
-        const processes : any = [] ;
-        const selected_processes = "BEM:List:selected_processes"
-        let process_element : any = {} ;    
-        const hideStyle = this.state.isHidden ? {display : "none"} : {} ;
-        const hideStyleHR = this.state.isHidden ? {display : "none"} : {border:"1px solid grey"} ;
-        Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
         if (this.loadingState !== eLoadingState.ready) {  
             return (<div></div>) ;
         }
-        else {
-            let rev_List : FlowObjectDataArray ;
-            switch(this.listmode) {
-                case "Revenue" :
-                    rev_List = this.fields["BEM:List:Revenue_Site"].value as FlowObjectDataArray
-                    break;
-                case "Subid":
-                    rev_List = this.fields["BEM:List:Subid_Site"].value as FlowObjectDataArray
-                    break;
-                case "Fetch":
-                    rev_List = this.fields["BEM:List:FetchProcess"].value as FlowObjectDataArray
-                    break;
-        } 
+
+        const processes : any = [] ;
+        let process_element : any = {} ;    
+        const hideStyle = this.state.isHidden ? {display : "none"} : {} ;
+        const hideStyleHR = this.state.isHidden ? {display : "none"} : {border:"1px solid grey"} ;
+        let rev_List : FlowObjectDataArray ;
+        switch(this.listmode) {
+            case "Revenue" :
+                rev_List = this.fields["BEM:List:Revenue_Site"].value as FlowObjectDataArray
+                break;
+            case "Subid":
+                rev_List = this.fields["BEM:List:Subid_Site"].value as FlowObjectDataArray
+                break;
+            case "Fetch":
+                rev_List = this.fields["BEM:List:FetchProcess"].value as FlowObjectDataArray
+                break;
+        }
         rev_List.items.forEach((item: FlowObjectData) => {
             process_element = {}
             Object.keys(item.properties).forEach((key: string) => {            
@@ -260,7 +239,7 @@ export class RunProcess extends FlowPage {
                     <div className = "Bem-row Bem-btn">       
                         <button id = "runProcess" onClick = {() => this.runProcessexe(this.state.selectedOption,this.state.envOption)} 
                         type="button" className = "btn btn-primary run-btn" 
-                        style = {{display : "iconandtext",  padding: "10px 200px",fontSize : "20px"}}
+                        style = {{display : "iconandtext",  padding: "10px 100px",fontSize : "20px"}}
                         > Run </button>
                     </div>
                 </div>
@@ -270,7 +249,7 @@ export class RunProcess extends FlowPage {
                     <div className = "Bem-row"> 
                         <CheckBoxComponent 
                             label="Use dates for run"
-                            checked={this.state.checked}
+                            checked={this.state.useDates}
                             onChange={this.handleCheckboxClick}
                             cssClass="e-success"
                         />
@@ -317,7 +296,6 @@ export class RunProcess extends FlowPage {
                 </div>  
            </div>
             )   
-        }
     }
 }
 manywho.component.register('RunProcess', RunProcess); 

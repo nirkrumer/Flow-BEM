@@ -1,0 +1,45 @@
+@-webkit-keyframes blinker {  
+ /* from {opacity: 1.0;}
+  to {opacity: 0.3;}*/
+  from {background-color: blue; color: yellow;font-weight: bold;}
+  to {background-color: yellow; color: blue; font-weight: bold;}
+}
+
+.label_loc {
+    color: white ;
+    padding: 8px;
+    border-radius: 25px;
+  }
+  
+  .success_loc {background-color: #4CAF50;} /* Green */
+  .info_loc {background-color: #2196F3;} /* Blue */
+  .warning_loc {background-color: #ff9800;} /* Orange */
+  .danger_loc {background-color: #f44336;} /* Red */
+  .other_loc {background-color: #e7e7e7; color: black;} /* Gray */
+
+  .blink {
+    text-decoration: blink;
+	-webkit-animation-name: blinker;
+	-webkit-animation-duration: 2.5s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:ease-in-out;
+	-webkit-animation-direction: alternate;
+  }
+  
+ .table-column {
+  table-layout: fixed;
+  width: 20px;
+ } 
+
+ .react-switch {
+  vertical-align: middle;
+  /* margin-left: 4px; */
+  display: "flex"
+}
+.Bem-header{
+  margin-bottom: 70px;
+  font-weight: bold;
+}
+.Bem-row{
+  margin-bottom: 30px;
+}

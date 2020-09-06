@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { FlowPage } from './models/FlowPage';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import './ExecRecordsGrid.css';
+import './design/ExecRecordsGrid.css';
 export declare class ExecRecordsGrid extends FlowPage {
     autorun: String;
     timerId: any;

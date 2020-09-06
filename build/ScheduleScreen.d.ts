@@ -2,7 +2,7 @@
 import { FlowPage } from './models/FlowPage';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import 'react-datepicker/dist/react-datepicker.css';
-import './ScheduleScreen.css';
+import './design/ScheduleScreen.css';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
 export declare class SchedulesScreen extends FlowPage {
@@ -28,10 +28,6 @@ export declare class SchedulesScreen extends FlowPage {
     handleSwitchChange(Toggleoption: boolean): void;
     handleSwitchChangeLogics(rowIndex: number): void;
     handleCheckboxClick(row: any, rowIndex: number): void;
-    refrshTable(): void;
-    handleClose(): void;
-    handleShow(): void;
-    nameChange: (e: any) => void;
     onHourEndChange(hour: string): void;
     onhourChangeLogics(rowIndex: number): void;
     handleWeekDay(text: String, active: any): void;

@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React from 'react';
 import { FlowPage } from './models/FlowPage';
 import { IManywho } from './models/interfaces';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
 import { FlowObjectData} from './models/FlowObjectData';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import './ExecRecordsGrid.css';
-import BSTable from './BSTable';
+import './design/ExecRecordsGrid.css';
+import BSTable from './components/BSTable';
 import { eLoadingState } from './models/FlowBaseComponent';
 import Switch from "react-switch";
 import Notiflix from "notiflix-react";
@@ -38,6 +38,7 @@ export class ExecRecordsGrid extends FlowPage {
     async componentDidMount() {
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
+        Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
         this.forceUpdate();
         return Promise.resolve();
     }
@@ -112,7 +113,6 @@ export class ExecRecordsGrid extends FlowPage {
         }
 
     async cancelHandler(executionId:any){
-        // this.triggerOutcome('refresh');
         await fetch("https://boomi.naturalint.com:9090/ws/simple/queryCancelExecution;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
             { 
                 method: "POST",
@@ -130,6 +130,9 @@ export class ExecRecordsGrid extends FlowPage {
     
     
     render() {
+        if (this.loadingState !== eLoadingState.ready) {
+            return (<div></div>);
+        }
         const products: any = [];
         let product_element: any = {};
         
@@ -144,53 +147,45 @@ export class ExecRecordsGrid extends FlowPage {
             { value: '6', label: 'Last 6 Hours' },
             { value: '24', label: 'Last 24 Hours' }
           ]
-    
-        if (this.loadingState !== eLoadingState.ready) {
-            return (<div></div>);
-        }
-        else {
-            Notiflix.Notify.Init({fontSize:"17px",borderRadius:"10px",distance:"80px",});
-         //   this.tableProcList = this.fields["BEM:List:AllProcesses"].value as FlowObjectDataArray;
-            const api_request: FlowObjectDataArray = this.fields["BEM:List:Execution_API_Request"].value as FlowObjectDataArray;
-            api_request.items.forEach((item: FlowObjectData) => {
-                let processName = item.properties["bns:processName"].value.toString() ;
-                if ((processName.includes("INCLUDES REVENUES"))
-                     || (processName.includes("SubidsOnly"))
-                     || (processName.includes("Subids+Calls Only")))
-                     {
-                         product_element = {};
-                         Object.keys(item.properties).forEach((key: string) => {
-                             switch (key) {
-                                 case "bns:processName":
-                                     product_element["processName"] = item.properties[key].value;
-                                     break;
-                                 case "bns:atomName":
-                                     product_element["atomName"] = item.properties[key].value;
-                                     break;
-                                 case "bns:executionType":
-                                     product_element["executionType"] = item.properties[key].value;
-                                     break;
-                                 case "bns:executionTime":
-                                     product_element["startTime"] = item.properties[key].value;
-                                     break;
-                                 case "bns:status":
-                                     product_element["status"] = item.properties[key].value;
-                                     break;
-                                 case "bns:message":
-                                     product_element["errormsg"] = item.properties[key].value;
-                                     break;
-                                 case "bns:executionDuration":
-                                     product_element["executionDuration"] = item.properties[key].value;
-                                     break;
-                                 case "bns:executionId":
-                                     product_element["executionId"] = item.properties[key].value;
-                                     break;    
-                             }
-                         });
-                         products.push(product_element)
-                    }
-                });
-        }
+        const api_request: FlowObjectDataArray = this.fields["BEM:List:Execution_API_Request"].value as FlowObjectDataArray;
+        api_request.items.forEach((item: FlowObjectData) => {
+            let processName = item.properties["bns:processName"].value.toString() ;
+            if ((processName.includes("INCLUDES REVENUES"))
+                    || (processName.includes("SubidsOnly"))
+                    || (processName.includes("Subids+Calls Only")))
+                    {
+                        product_element = {};
+                        Object.keys(item.properties).forEach((key: string) => {
+                            switch (key) {
+                                case "bns:processName":
+                                    product_element["processName"] = item.properties[key].value;
+                                    break;
+                                case "bns:atomName":
+                                    product_element["atomName"] = item.properties[key].value;
+                                    break;
+                                case "bns:executionType":
+                                    product_element["executionType"] = item.properties[key].value;
+                                    break;
+                                case "bns:executionTime":
+                                    product_element["startTime"] = item.properties[key].value;
+                                    break;
+                                case "bns:status":
+                                    product_element["status"] = item.properties[key].value;
+                                    break;
+                                case "bns:message":
+                                    product_element["errormsg"] = item.properties[key].value;
+                                    break;
+                                case "bns:executionDuration":
+                                    product_element["executionDuration"] = item.properties[key].value;
+                                    break;
+                                case "bns:executionId":
+                                    product_element["executionId"] = item.properties[key].value;
+                                    break;    
+                            }
+                        });
+                        products.push(product_element)
+                }
+            });
         const defaultSorted = [{
             dataField: 'startTime',
             order: 'desc'
@@ -366,6 +361,7 @@ export class ExecRecordsGrid extends FlowPage {
             <BSTable products = {tabledataTosend} columns = {columns} defaultSorted = {defaultSorted} style = {rowStyle}> </BSTable>
         </div>
         );
+        //test
     }
 }
 

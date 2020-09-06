@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { FlowPage } from './models/FlowPage';
 import { IManywho } from './models/interfaces';
 import { FlowObjectDataArray } from './models/FlowObjectDataArray';
@@ -7,15 +7,14 @@ import { eLoadingState } from './models/FlowBaseComponent';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-datepicker/dist/react-datepicker.css';
-import ​'./ScheduleScreen.css';
+import ​'./design/ScheduleScreen.css';
 import { CheckBoxComponent } from '@syncfusion/ej2-react-buttons';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
-import WeekDaysPicker from './WeekDaysPicker';
-import HourComp from './HourComp';
+import WeekDaysPicker from './components/WeekDaysPicker';
+import HourComp from './components/HourComp';
+import SwitchFlow from './components/SwitchFlow';
 import Notiflix from "notiflix-react";
-import SwitchFlow from './SwitchFlow';
-import BSTable from './BSTable';
 
 declare const manywho: IManywho;
 ​
@@ -36,11 +35,8 @@ export class SchedulesScreen extends FlowPage {
 ​
     constructor(props: any) {
         super(props);
-        this.handleShow = this.handleShow.bind(this);
-        this.handleClose = this.handleClose.bind(this);
         this.handleSwitchChange = this.handleSwitchChange.bind(this)
         this.handleSwitchChangeLogics = this.handleSwitchChangeLogics.bind(this)
-        this.refrshTable = this.refrshTable.bind(this)
         this.handleCheckboxClick = this.handleCheckboxClick.bind(this)
         this.onHourEndChange = this.onHourEndChange.bind(this)
         this.initHours = this.initHours.bind(this)
@@ -57,19 +53,18 @@ export class SchedulesScreen extends FlowPage {
             checked : false,
             hour : "",
             selectedOption: [],
+            userName : ""
                }
         }   
     async componentDidMount() {
         await super.componentDidMount();
         (manywho as any).eventManager.addDoneListener(this.moveHappened, this.componentId);
         this.forceUpdate();
+        this.setState({userName : this.fields["userNameValue"].value as FlowObjectDataArray})
         return Promise.resolve();
     }
    
     moveHappened(xhr: XMLHttpRequest, request: any) {
-        if ((xhr as any).invokeType === 'FORWARD') {
-            // this.forceUpdate();
-        }
     }
 ​/* --------------------------------------------------------------- */
 
@@ -112,9 +107,7 @@ handleSwitchChangeLogics (rowIndex : number){
 }
 ​
 handleCheckboxClick(row: any, rowIndex: number){
-    this.setState({
-        checked:!this.state.checked
-    });
+    this.setState({checked:!this.state.checked});
     if(this.state.checked)
     {       
         if(this.schedArrayList.some(item => item.Sched_Id === row.Sched_Id))
@@ -133,31 +126,17 @@ handleCheckboxClick(row: any, rowIndex: number){
                 "Sched_Id" : row.Sched_Id
             })
         }
-            this.setState({
-                checked:!this.state.checked        
-            });
+        this.setState({checked:!this.state.checked});
     }
 }
-
-refrshTable(){
-    this.triggerOutcome('refresh');
-}
-handleClose() {
-    this.setState({ show: false });
-}
-handleShow() {
-    this.setState({ show: false });
-}
-nameChange = (e:any) => {
-    this.setState({name: e.target.value});
-}
-
 onHourEndChange(hour:string){
     this.setState({hour})
     this.hourSentToComponent = hour ;
 }
 onhourChangeLogics(rowIndex:number){
-    this.products[rowIndex].Hours = this.hourSentToComponent.substring(0,2);
+    this.products[rowIndex].Hours = (this.hourSentToComponent.substring(0,1) == '0') ?
+        this.hourSentToComponent.substring(1,2) :
+        this.hourSentToComponent.substring(0,2)
     this.products[rowIndex].Minutes = this.hourSentToComponent.substring(3,5);
     this.forceUpdate();
 }
@@ -285,7 +264,7 @@ onhourChangeLogics(rowIndex:number){
             }
           }            break;
         case "Fri":
-            if(this.tueV){
+            if(this.friV){
                 if (this.products[rowIndex].Days == ""){
                     days = "6"
                 }
@@ -347,7 +326,8 @@ saveHandler(schedArrayList:any)  {
             sched_Data_To_Update["Is_Enabled"]=this.products[productIndex].Is_Enabled
             sched_Data_To_Update["Days"]=this.products[productIndex].Days
             sched_Data_To_Update["Hours"]=this.products[productIndex].Hours
-            sched_Data_To_Update["Minutes"]=this.products[productIndex].Minutes                          
+            sched_Data_To_Update["Minutes"]=this.products[productIndex].Minutes
+            sched_Data_To_Update["user"] = this.state.userName
             sched_Data_To_Update_Array.push(sched_Data_To_Update)
         }  
     this.UpdateSchedule(sched_Data_To_Update_Array);
@@ -366,7 +346,8 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
     else{
         let demeObject : any = {} ;
         demeObject ["array"] = sched_Data_To_Update_Array ;
-        await fetch("https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+        //await fetch(`https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=${process.env.atomCred}`,
+        await fetch(`https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5`,
             { 
                 method: "POST", 
                 body: JSON.stringify(demeObject),
@@ -377,57 +358,60 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
                 credentials: "same-origin",
                 mode: 'no-cors'
             })
+            var start = new Date().getTime();
+            var end = start;
+            while(end < start + 1200) {
+                end = new Date().getTime();}
             this.triggerOutcome('Save');
-            window.location.reload(false);  
+            this.forceUpdate();
+            window.location.reload(false);
         }    
 }
 
 render(){
+    if (this.loadingState !== eLoadingState.ready) {
+        return (<div></div>);
+    }
     if (this.products.length == 0){
         this.products = [] ;
-        let product_element: any = {};
-        if (this.loadingState !== eLoadingState.ready) {
-            return (<div></div>);
-        }
-        else {
-            const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
-            api_request.items.forEach((item: FlowObjectData) => {
-                let processName = item.properties["Process_Name"].value.toString() ;
-                if ((processName.includes("INCLUDES REVENUES"))
-                    || (processName.includes("SubidsOnly"))
+        let product_element: any = {};        
+        const api_request: FlowObjectDataArray = this.fields["BEM:List:Schedules"].value as FlowObjectDataArray;
+        api_request.items.forEach((item: FlowObjectData) => {
+            let processName = item.properties["Process_Name"].value.toString() ;
+            if ((processName.includes("INCLUDES REVENUES"))
+                || (processName.includes("SubidsOnly"))
                     || (processName.includes("Subids+Calls Only")))                
-                if (1==1)
-                {
-                    product_element = {}
-                    Object.keys(item.properties).forEach((key: string) => {
-                        switch (key) {
-                            case "Sched_Id":
-                                product_element["Sched_Id"] = item.properties[key].value;
-                                break;
-                            case "Process_Name":
-                                product_element["Process_Name"] = item.properties[key].value;
-                                break;
-                            case "Is_Enabled":
-                                product_element["Is_Enabled"] = item.properties[key].value;
-                                break;
-                            case "Days":
-                                product_element["Days"] = item.properties[key].value;
-                                break;
-                            case "Minutes":
-                                product_element["Minutes"] = item.properties[key].value;
-                                break;
-                            case "Hours":
-                                product_element["Hours"] = item.properties[key].value;
-                                break;
-                            case "Process_Id":
-                                product_element["Process_Id"] = item.properties[key].value;
-                                break;
-                        }
-                    });
-                    this.products.push(product_element)
-                }
+            // if (2==2)
+            {
+                product_element = {}
+                Object.keys(item.properties).forEach((key: string) => {
+                    switch (key) {
+                        case "Sched_Id":
+                            product_element["Sched_Id"] = item.properties[key].value;
+                            break;
+                        case "Process_Name":
+                            product_element["Process_Name"] = item.properties[key].value;
+                            break;
+                        case "Is_Enabled":
+                            product_element["Is_Enabled"] = item.properties[key].value;
+                            break;
+                        case "Days":
+                            product_element["Days"] = item.properties[key].value;
+                            break;
+                        case "Minutes":
+                            product_element["Minutes"] = item.properties[key].value;
+                            break;
+                        case "Hours":
+                            product_element["Hours"] = item.properties[key].value;
+                            break;
+                        case "Process_Id":
+                            product_element["Process_Id"] = item.properties[key].value;
+                            break;
+                    }
+                });
+                this.products.push(product_element)
+            }
         });
-        }
     }
     const defaultSorted = [{
         dataField: 'Process_Name',
@@ -441,13 +425,11 @@ render(){
             editable: false,
             formatter: (cellContent:any,row: any,rowIndex: any) => {
                 return (
-                    <div className="custom-control custom-checkbox">
-                      <CheckBoxComponent     
-                            checked={this.state.checked}
-                            onChange={()=>this.handleCheckboxClick(row,rowIndex)}
-                            cssClass="e-success"
-                        />
-                </div>              
+                    <CheckBoxComponent     
+                        checked={this.state.checked}
+                        onChange={()=>this.handleCheckboxClick(row,rowIndex)}
+                        cssClass="e-success"
+                    />            
                 );
             },
             headerStyle: () => {
@@ -543,7 +525,6 @@ render(){
         <div className = 'Bem-row'>
             <button className = "btn btn-primary" onClick={()=>
                 this.saveHandler(this.schedArrayList)
-                //this.UpdateSchedule(this.schedArrayList)
                 }>Save</button>
         </div>
         {/* <BSTable products = {this.products} columns = {columns} defaultSorted = {defaultSorted}>
@@ -554,6 +535,7 @@ render(){
             columns={columns}
         />
     </div>
+    //test
         )
     }
 }

@@ -1,7 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 import { FlowPage } from './models/FlowPage';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
-import './RunProcess.css';
+import './design/RunProcess.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import "../node_modules/@syncfusion/ej2-base/styles/material.css";
 import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
