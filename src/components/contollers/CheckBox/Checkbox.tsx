@@ -10,16 +10,15 @@ type CheckBoxProps = {
     label : String
 }
 
-
 export default function Checkbox({onChange, checked, cssClass,label}: CheckBoxProps) {
     return (
         <div>
             <CheckBoxComponent     
-                            checked={checked}
-                            onChange={onChange}
-                            cssClass={cssClass}
-                            label = {label}
-                        />
+                checked={checked}
+                onChange={onChange}
+                cssClass={cssClass}
+                label = {label}
+            />
         </div>
     )
 }

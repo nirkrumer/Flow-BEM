@@ -32,8 +32,5 @@ export default function Button({ onClick, id }: ButtonProps) {
 // const myComp = ({text}) => {
 // return <div>{text}</div>
 // };
-// const myComp = ({text}) => {
-// return <div>{text}</div>
-// };
 
 // import React, { useState, useEffect, useMemo, useSelect..... } from 'react';
