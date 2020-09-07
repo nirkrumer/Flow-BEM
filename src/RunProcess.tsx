@@ -285,7 +285,8 @@ export class RunProcess extends FlowPage {
                             </div>
                             <div className = "Bem-row"> 
                                 <DatePicker
-                                    onChange={this.onDateEndChange} selected={this.state.endDate}
+                                    onChange={this.onDateEndChange} 
+                                    selected={this.state.endDate}
                                     dateFormat="dd/MM/yyyy"
                                     value = {this.state.endDate}    
                                     todayButton="Today"

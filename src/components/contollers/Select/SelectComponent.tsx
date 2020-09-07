@@ -5,7 +5,7 @@ import makeAnimated from 'react-select/animated';
 type SelectProps = {
     placeHolder : String,
     onChange : (e:any) => void,
-    value : String,
+    value : any,
     options : any, // array of objects {String : String}
 }
 
