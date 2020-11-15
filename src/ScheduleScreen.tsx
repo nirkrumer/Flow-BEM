@@ -347,7 +347,7 @@ async UpdateSchedule(sched_Data_To_Update_Array:any){
         let demeObject : any = {} ;
         demeObject ["array"] = sched_Data_To_Update_Array ;
         //await fetch(`https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=${process.env.atomCred}`,
-        await fetch(`https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5`,
+        await fetch(`https://boomi.naturalint.com:9090/ws/simple/queryScheduleprocessfixed;boomi_auth=XXXXXXX`,
             { 
                 method: "POST", 
                 body: JSON.stringify(demeObject),
