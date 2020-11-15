@@ -1,7 +1,7 @@
 //require('dotenv').config()
 import {executeApi} from './Connector'
-const ATOM_ID_PRODUCTION = '8e42eb7d-d9ab-4736-8e37-46132749b8e7';
-const ATOM_ID_QA = '2dfe32e5-4371-488d-b6c4-13dc4e0bd7fd';
+const ATOM_ID_PRODUCTION = 'XXXXXX';
+const ATOM_ID_QA = 'yyyyyy';
 
 const BOOMI_BASE_URL = 'https://boomi.naturalint.com:9090/ws/simple';
 const BOOMI_API_PASS = process.env.atomCred
