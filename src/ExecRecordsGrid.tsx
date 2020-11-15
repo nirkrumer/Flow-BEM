@@ -89,7 +89,7 @@ export class ExecRecordsGrid extends FlowPage {
 
     async refreshTable() : Promise<any> {
         this.setState({is_loading:true});
-        await fetch("https://boomi.naturalint.com:9090/ws/simple/getExecutionRecords;boomi_auth=bmF0dXJhbGludGVsbGlnZW5jZS1aV01LSDM6YTY0NDkwYmUtNTZjZS00MDI4LTg3NmQtMmVjMjY5Y2U5ZTA5",
+        await fetch("https://boomi.naturalint.com:9090/ws/simple/getExecutionRecords;boomi_auth=XXXXXXXX",
             { 
                 method: "POST",
                 body: JSON.stringify(
